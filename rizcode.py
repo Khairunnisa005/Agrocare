@@ -1,0 +1,3 @@
+print("Rizqi")
+
+print("nesya")
