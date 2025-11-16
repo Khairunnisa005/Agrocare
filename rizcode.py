@@ -13,7 +13,7 @@ data_akun = pd.read_csv('users.csv')
 
 role = "pembeli"
 while True :
-    if (data_akun['username'] == username,data_akun['password'] == password).any():
+    if (data_akun['username'] == username).any():
         print("akun sudah pernah di buat !!!")
         #register()
     else :
