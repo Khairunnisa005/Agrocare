@@ -5,8 +5,6 @@ import os
 username = input("Buat Username: ")
 password = input("Buat Pasword: ")
 
-
-
 data_akun = pd.read_csv('users.csv')
 
 role = "pembeli"
