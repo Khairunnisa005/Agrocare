@@ -1,24 +1,33 @@
 
-#import os
 import pandas as pd
-
-#def register():
-#os.system('cls')
+import os
 
 username = input("Buat Username: ")
 password = input("Buat Pasword: ")
 
 
+
 data_akun = pd.read_csv('users.csv')
 
 role = "pembeli"
-while True :
-    if (data_akun['username'] == username).any():
-        print("akun sudah pernah di buat !!!")
-        #register()
-    else :
-        menambahkan_datauser = pd.DataFrame({'username': [username], 'password': [password], 'role': [role]})
-        data_user = data_user._append(menambahkan_datauser)
-        data_user.to_csv('users.csv', index=False)
-        print("akun berhasil di buat")
-        #menu_loginmm
+
+# Cek apakah username + password sudah ada
+akun_sama = ((data_akun['username'] == username) & 
+            (data_akun['password'] == password)).any()
+
+if akun_sama:
+    print("Akun sudah pernah dibuat !!!")
+else:
+    # Buat row baru
+    row_baru = pd.DataFrame({
+        'username': [username],
+        'password': [password],
+        'role': [role]
+    })
+
+    # Gabungkan data lama + data baru
+    data_akun = pd.concat([data_akun, row_baru], ignore_index=True)
+
+    # Simpan kembali ke CSV
+    data_akun.to_csv('users.csv', index=False)
+    print("Akun berhasil dibuat")
