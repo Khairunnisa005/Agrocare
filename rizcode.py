@@ -13,7 +13,7 @@ role = "pembeli"
 akun_sama = ((data_akun['username'] == username)).any()
 #aku hapus yang paswwor nyaa aja kalok paswword sama ndak papa yang penting username nya aja beda
 if akun_sama:
-    print("Akun sudah pernah dibuat !!!")
+    print("username sudah pernah terdaftar")
 else:
     # Buat row baru
     row_baru = pd.DataFrame({
