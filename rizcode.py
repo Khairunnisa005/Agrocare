@@ -10,9 +10,8 @@ data_akun = pd.read_csv('users.csv')
 role = "pembeli"
 
 # Cek apakah username + password sudah ada
-akun_sama = ((data_akun['username'] == username) & 
-            (data_akun['password'] == password)).any()
-
+akun_sama = ((data_akun['username'] == username)).any()
+#aku hapus yang paswwor nyaa aja kalok paswword sama ndak papa yang penting username nya aja beda
 if akun_sama:
     print("Akun sudah pernah dibuat !!!")
 else:
