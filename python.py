@@ -2,6 +2,7 @@ import pandas as pd
 import os
 
 def register():
+    os.system('cls')
 
     username = input("Buat Username: ")
     #while ini untuk memeastikan supaya input tidak kososng 
@@ -24,6 +25,7 @@ def register():
     #aku hapus yang paswwor nyaa aja kalok paswword sama ndak papa yang penting username nya aja beda
     if akun_sama:
         print("username sudah pernah terdaftar")
+        register()
     else:
         # Buat row baru
         row_baru = pd.DataFrame({
@@ -38,15 +40,10 @@ def register():
         # Simpan kembali ke CSV
         data_akun.to_csv('users.csv', index=False)
         print("Akun berhasil dibuat")
-
 register()
 
-
-import pandas as pd
-import os
-
 def login():
-
+    os.system('cls')
 # Baca CSV
     data_akun = pd.read_csv("users.csv")
 
@@ -85,5 +82,6 @@ def login():
     else:
         print("\n Login berhasil! Selamat datang di Agrocare,", username)
         
-login()
-        
+    return login()
+
+
