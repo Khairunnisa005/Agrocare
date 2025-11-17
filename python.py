@@ -2,7 +2,16 @@ import pandas as pd
 import os
 
 username = input("Buat Username: ")
+#while ini untuk memeastikan supaya input tidak kososng 
+#program tidak lanjut ke password jika tidak mengisi user name 
+while not username or username .isspace():
+    print("Input tidak boleh kosong")
+    username = input("Buat Username: ")
+
 password = input("Buat Pasword: ")
+while not password or password .isspace(): #.isspace ini untuk memastikan bahwa inputan tidak hanya berisi sepasi
+    print("Input tidak boleh kosong")
+    password= input("Buat Pasword: ")
 
 data_akun = pd.read_csv('users.csv')
 
