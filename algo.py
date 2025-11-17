@@ -4,24 +4,38 @@ import os
 # Baca CSV
 data_akun = pd.read_csv("users.csv")
 
-print("============= LOGIN =============")
+print("========================================================")
+print("============== SELAMAT DATANG DI AGROCARE ==============")
+print("====================== LOGIN ===========================")
 
 username = input("Masukkan Username : ")
+
+#cek username
+akun = data_akun[data_akun["username"] == username]
+
+if akun.empty:
+    print("\n Username tidak terdaftar. Silahkan daftarr/register telebih dahulu.")
+    exit() #untuk stop program jika usn belum terdaftar
+
+#kalo usn benar minta passwod
 password = input("Masukkan Password : ")
 
-# Cek kecocokan username & password
-akun = data_akun[
-    (data_akun["username"] == username) &
+#cek pw
+password_benar = data_akun[
+    (data_akun["username"] == username) & 
     (data_akun["password"] == password)
 ]
 
-if akun.empty:
-    print("\n Login gagal! Username atau password salah silahkan coba lagi.")
-else:
-    role = akun.iloc[0]["role"]
+if password_benar.empty: 
+    print("\n Password salah! Silahkan coba lagi.")
+    exit()#untuk stop program jika paw salah
 
-    # Tampilan selamat datang
-    if role == "admin":
-        print("\n Login berhasil! Selamat datang ADMIN,", username)
-    else:
-        print("\n Login berhasil! Selamat datang PEMBELI,", username)
+# jika usn dan pw benar maka login berhasil
+role = password_benar.iloc[0]["role"]
+
+        # Tampilan selamat datang
+if role == "admin dan pembeli":
+    print("\n Login berhasil! Selamat datang ADMIN,", username)
+else:
+    print("\n Login berhasil! Selamat datang di Agrocare,", username)
+    
