@@ -1,40 +1,5 @@
 import csv
 
-def login_pembeli():
-    print("====================================")
-    print("             LOGIN PEMBELI")
-    print("====================================")
-
-    username_input = input("Masukkan Username : ")
-    password_input = input("Masukkan Password : ")
-
-    try:
-        file = open("pembeli.csv", "r")
-        data_pembeli = file.readlines()
-        file.close()
-    except:
-        print("File pembeli.csv tidak ditemukan!")
-        return False
-
-    login_berhasil = False
-
-    for baris in data_pembeli:
-        username, password = baris.split(",")
-        password = password.strip()   # hapus \n
-
-        if username_input == username and password_input == password:
-            login_berhasil = True
-
-    if login_berhasil:
-        print("\nLogin berhasil! Selamat datang Pembeli.")
-        return True
-    else:
-        print("\nLogin gagal! Username atau password salah.")
-        return False
-
-
-login_pembeli()
-
 
 def login_admin():
     print("====================================")
@@ -120,4 +85,7 @@ while True:
 
     else:
         print("Pilihan tidak valid! Silakan coba lagi.")
+
+
+
 
