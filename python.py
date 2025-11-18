@@ -41,10 +41,6 @@ def register():
 
 register()
 
-
-import pandas as pd
-import os
-
 def login():
 
 # Baca CSV
