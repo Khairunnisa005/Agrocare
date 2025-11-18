@@ -3,7 +3,6 @@ import os
 
 def register():
     os.system('cls')
-
     username = input("Buat Username: ")
     #while ini untuk memeastikan supaya input tidak kososng 
     #program tidak lanjut ke password jika tidak mengisi user name 
@@ -40,7 +39,7 @@ def register():
         # Simpan kembali ke CSV
         data_akun.to_csv('users.csv', index=False)
         print("Akun berhasil dibuat")
-register()
+register() 
 
 def login():
     os.system('cls')
@@ -81,7 +80,5 @@ def login():
         print("\n Login berhasil! Selamat datang ADMIN,", username)
     else:
         print("\n Login berhasil! Selamat datang di Agrocare,", username)
-        
-    return login()
-
+login()
 
