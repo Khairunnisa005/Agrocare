@@ -2,6 +2,7 @@ import pandas as pd
 import os
 
 def register():
+    os.system('cls')
 
     username = input("Buat Username: ")
     #while ini untuk memeastikan supaya input tidak kososng 
@@ -24,6 +25,7 @@ def register():
     #aku hapus yang paswwor nyaa aja kalok paswword sama ndak papa yang penting username nya aja beda
     if akun_sama:
         print("username sudah pernah terdaftar")
+        register()
     else:
         # Buat row baru
         row_baru = pd.DataFrame({
@@ -39,10 +41,14 @@ def register():
         data_akun.to_csv('users.csv', index=False)
         print("Akun berhasil dibuat")
 
+register()
 
+
+import pandas as pd
+import os
 
 def login():
-
+    os.system('cls')
 # Baca CSV
     data_akun = pd.read_csv("users.csv")
 
@@ -81,28 +87,5 @@ def login():
     else:
         print(f"\n Login berhasil! Selamat datang di Agrocare,", username)
         
-
-
-def menu():
-        while True: # menu akan terus mucul sampai user memilih keluar
-            print("========================================================")
-            print("===============selamat datang di Agrocare===============")
-            print("========================================================")
-            print("1. Login")
-            print("2. Register")
-            print("3. Keluar")
-            print("========================================================")
-
-            pilihan = input("pilih menu (1/2/3):")
-
-            if pilihan == "1":
-                login()
-            elif pilihan == "2":
-                register()
-            elif pilihan == "3":
-                print("Terimakasih telah menggunakan Agrocare. Sampai jumpa!")
-                break #keluar dari while true / menghentikan program
-            else:
-                print("\n Pilihan tidak valid! Silahkan masukkan angka 1-3.\n")
-
-menu()
+login()
+        
