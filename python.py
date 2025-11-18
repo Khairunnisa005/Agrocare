@@ -24,6 +24,7 @@ def register():
     #aku hapus yang paswwor nyaa aja kalok paswword sama ndak papa yang penting username nya aja beda
     if akun_sama:
         print("username sudah pernah terdaftar")
+        input("Klik Enter untuk melanjutkan...")
         register()
     else:
         # Buat row baru
