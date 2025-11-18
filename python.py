@@ -40,6 +40,7 @@ def register():
         # Simpan kembali ke CSV
         data_akun.to_csv('users.csv', index=False)
         print("Akun berhasil dibuat")
+        input("Klik Enter untuk melanjutkan...")
 
 
 def login():
@@ -57,7 +58,8 @@ def login():
     akun = data_akun[data_akun["username"] == username]
 
     if akun.empty:
-        print("\n Username tidak terdaftar. Silahkan daftarr/register telebih dahulu.") 
+        print("\n Username tidak terdaftar. Silahkan daftarr/register telebih dahulu.")
+        input("Klik Enter untuk melanjutkan...") 
         return() 
 
     #kalo usn benar minta passwod
@@ -71,6 +73,7 @@ def login():
     #cek pw
     if password_benar.empty: 
         print("\n Password salah! Silahkan coba lagi.")
+        input("Klik Enter untuk melanjutkan...")
         return() #jika pw salah mka kembali ke menu
 
     # jika usn dan pw benar cek role maka login berhasil
@@ -79,31 +82,36 @@ def login():
     # Tampilan selamat datang sesuai role
     if role == "admin":
         print(f"\n Login berhasil! Selamat datang ADMIN,", username)
+        input("Klik Enter untuk melanjutkan...")
+        #menu_admind
     else:
-        print("\n Login berhasil! Selamat datang di Agrocare,", username)
+        print(f"\n Login berhasil! Selamat datang di Agrocare,", username)
+        input("Klik Enter untuk melanjutkan...")
+        #menu_kasir()
 
 
 def menu():
-        while True: # menu akan terus mucul sampai user memilih keluar
-            print("========================================================")
-            print("===============selamat datang di Agrocare===============")
-            print("========================================================")
-            print("1. Login")
-            print("2. Register")
-            print("3. Keluar")
-            print("========================================================")
+    os.system('cls')
+    while True: # menu akan terus mucul sampai user memilih keluar
+        print("========================================================")
+        print("===============selamat datang di Agrocare===============")
+        print("========================================================")
+        print("1. Login")
+        print("2. Register")
+        print("3. Keluar")
+        print("========================================================")
 
-            pilihan = input("pilih menu (1/2/3):")
+        pilihan = input("pilih menu (1/2/3):")
 
-            if pilihan == "1":
-                login()
-            elif pilihan == "2":
-                register()
-            elif pilihan == "3":
-                print("Terimakasih telah menggunakan Agrocare. Sampai jumpa!")
-                break #keluar dari while true / menghentikan program
-            else:
-                print("\n Pilihan tidak valid! Silahkan masukkan angka 1-3.\n")
+        if pilihan == "1":
+            login()
+        elif pilihan == "2":
+            register()
+        elif pilihan == "3":
+            print("Terimakasih telah menggunakan Agrocare. Sampai jumpa!")
+            break #keluar dari while true / menghentikan program
+        else:
+            print("\n Pilihan tidak valid! Silahkan masukkan angka 1-3.\n")
 
 menu()
 
