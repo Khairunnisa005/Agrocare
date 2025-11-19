@@ -1,6 +1,10 @@
 import pandas as pd
 import os
 
+# =========================
+#  REGISTRASI
+# =========================
+
 def register():
     os.system('cls')
     username = input("Buat Username: ")
@@ -25,7 +29,7 @@ def register():
     if akun_sama:
         print("username sudah pernah terdaftar")
         input("Klik Enter untuk melanjutkan...")
-        register()
+        login()
     else:
         # Buat row baru
         row_baru = pd.DataFrame({
@@ -42,7 +46,9 @@ def register():
         print("Akun berhasil dibuat")
         input("Klik Enter untuk melanjutkan...")
 
-
+# =========================
+#  LOGIN
+# =========================
 def login():
     os.system('cls')   
 # Baca CSV
@@ -83,11 +89,66 @@ def login():
     if role == "admin":
         print(f"\n Login berhasil! Selamat datang ADMIN,", username)
         input("Klik Enter untuk melanjutkan...")
-        #menu_admind
+        menu_admin()
     else:
         print(f"\n Login berhasil! Selamat datang di Agrocare,", username)
         input("Klik Enter untuk melanjutkan...")
-        #menu_kasir()
+        menu_pembeli(username)
+
+# =========================
+#  MENU ADMIN
+# =========================
+tambah_produk = ""
+edit_produk = ""
+hapus_produk = ""
+lihat_produk = ""
+beli_produk = ""
+laporan_pembeli = ""
+laporan_admin = ""
+
+def menu_admin():
+    os.system('cls')
+    while True:
+        print("=== MENU ADMIN ===")
+        print("1. Kelola Produk")
+        print("2. Laporan Penjualan")
+        print("0. Logout")
+        pil = input("Pilih: ")
+
+        if pil == "1":
+            print("\n1. Tambah")
+            print("2. Edit")
+            print("3. Hapus")
+            print("4. Lihat Produk")
+            sub = input("Pilih: ")
+
+            if sub == "1": tambah_produk()
+            elif sub == "2": edit_produk()
+            elif sub == "3": hapus_produk()
+            elif sub == "4": lihat_produk()
+        elif pil == "2":
+            laporan_admin()
+        elif pil == "0":
+            break
+
+# =========================
+#  MENU PEMBELI
+# =========================
+def menu_pembeli(username):
+    os.system('cls')
+    while True:
+        print("=== MENU PEMBELI ===")
+        print("1. Pembelian Produk")
+        print("2. Laporan Pembelian")
+        print("0. Logout")
+        pil = input("Pilih: ")
+
+        if pil == "1":
+            beli_produk(username)
+        elif pil == "2":
+            laporan_pembeli(username)
+        elif pil == "0":
+            break
 
 
 def menu():
@@ -104,9 +165,16 @@ def menu():
         pilihan = input("pilih menu (1/2/3):")
 
         if pilihan == "1":
-            login()
+            user = login()
+            if user:
+                if user["role"] == "admin":
+                    menu_admin()
+                else:
+                    menu_pembeli(user["username"])
+            
         elif pilihan == "2":
             register()
+
         elif pilihan == "3":
             print("Terimakasih telah menggunakan Agrocare. Sampai jumpa!")
             break #keluar dari while true / menghentikan program
