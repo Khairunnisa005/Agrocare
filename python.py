@@ -1,10 +1,17 @@
 import pandas as pd
 import os
+import csv
+
+# =========================
+#  FILE DATABASE
+# =========================
+USER_FILE = "users.csv"
+PRODUCT_FILE = "products.csv"
+SALES_FILE = "sales.csv"
 
 # =========================
 #  REGISTRASI
 # =========================
-
 def register():
     os.system('cls')
     username = input("Buat Username: ")
@@ -132,6 +139,16 @@ def menu_admin():
             break
 
 # =========================
+#  LAPORAN ADMIN
+# =========================
+def laporan_admin():
+    print("\n=== LAPORAN PENJUALAN ===")
+    with open(SALES_FILE, "r", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            print(f"{row['tanggal']} | {row['pembeli']} | {row['produk']} | {row['jumlah']} | {row['total']}")
+
+# =========================
 #  MENU PEMBELI
 # =========================
 def menu_pembeli(username):
@@ -149,6 +166,17 @@ def menu_pembeli(username):
             laporan_pembeli(username)
         elif pil == "0":
             break
+
+# =========================
+#  LAPORAN PEMBELI
+# =========================
+def laporan_pembeli(username):
+    print("\n=== LAPORAN PEMBELIAN ANDA ===")
+    with open(SALES_FILE, "r", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            if row["pembeli"] == username:
+                print(f"{row['tanggal']} | {row['produk']} | {row['jumlah']} | {row['total']}")
 
 
 def menu():
