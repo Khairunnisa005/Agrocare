@@ -1,12 +1,12 @@
 username,password,role
-admin,admin,admin
+admin,ownerr,admin
 aca,aca,pembeli
 aca,acaa,pembeli
 acaa,aca,pembeli
 ,,pembeli
 ,,pembeli
 ,,pembeli
-nes,nes,pembeli
+nesa,nes,pembeli
 riski kacaw ,123456,pembeli
 riski kacaw,123456,pembeli
 indomaret,123456,pembeli
@@ -19,3 +19,4 @@ Rizqi gg,123456,pembeli
 jwjjjwjww,wjwjwjwjw,pembeli
 koala po,123456,pembeli
 nnnn,aaaaaa,pembeli
+apaya,apaya,pembeli
