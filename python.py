@@ -120,10 +120,10 @@ def menu_admin():
         print("=== MENU ADMIN ===")
         print("1. Kelola Produk")
         print("2. Laporan Penjualan")
-        print("3. Logout")
+        print("0. Logout")
         pillihan = input("Pilih: ")
+
         if pillihan == "1":
-            os.system('cls')
             kelola_produk()
         elif pillihan == "2": 
             os.system('cls')
@@ -265,6 +265,76 @@ def hapus_produk(PRODUCT_FILE):
 
 
 
+def kelola_akun(username):
+    while True:
+        os.system('cls')
+        print("====== KELOLA AKUN ======")
+        print("1. Ubah Username")
+        print("2. Ubah Password")
+        print("3. kembali/logout")
+
+        pilih = input(" pilih menu: ")
+
+        if pilih == "1":
+            username = ubah_username(username)
+        elif pilih == "2":
+            ubah_password(username)
+        elif pilih == "3":
+            print("kembali ke menu sebelumnya...")
+            return
+        else:
+            print("pilihan tidak valid! silahkan tekan menu 1-3")
+        
+def ubah_username(username_lama):
+    os.system('cls')
+    data_akun = pd.read_csv("users.csv")
+
+    print("================Ubah Username================")
+    username_baru = input("Masukkan username baru: ")
+
+    #cek apakah username baru sudah ada
+    if username_baru in data_akun["username"]. values:
+        print("username sudah sudah terdaftar!")
+        return username_lama
+        
+    #update username
+    data_akun.loc[data_akun["username"] == username_lama, "username"] = username_baru
+    data_akun.to_csv("users.csv", index=False)
+
+    print("username berhail di ubah!")
+    return username_baru 
+
+
+def ubah_password(username):
+    os.system('cls')
+    data_akun = pd.read_csv("users.csv")
+
+    print("================Ubah Password================")
+    password_lama = input("Masukkan password lama: ")
+
+    #cek apakah password lama benar
+    akun = data_akun[
+        (data_akun["username"] == username) &
+        (data_akun["password"] == password_lama)
+    ]
+
+    if akun.empty:
+        print("Password lama salah: ")
+        input("tekan enter untuk kembali...")
+        return
+    
+    password_baru = input("masukkan password baru:" )
+    while not password_baru.strip():
+        print("password tidak boleh kosong!")
+        password_baru = input("masukkan password baru: ")
+
+    data_akun.loc[data_akun["username"] == username, "password"] = password_baru
+    data_akun.to_csv("users.csv", index=False)
+
+    print("password berhasil diubah!")
+        
+
+
 # =========================
 #  LAPORAN ADMIN
 # =========================
@@ -285,6 +355,7 @@ def menu_pembeli(username):
         print("=== MENU PEMBELI ===")
         print("1. Pembelian Produk")
         print("2. Laporan Pembelian")
+        print("3. Kelola Akun: ")
         print("0. Logout")
         pil = input("Pilih: ")
 
@@ -292,6 +363,8 @@ def menu_pembeli(username):
             beli_produk(username)
         elif pil == "2":
             laporan_pembeli(username)
+        elif pil == "3":
+            kelola_akun(username)
         elif pil == "0":
             break
 
