@@ -2,9 +2,9 @@ import pandas as pd
 import os
 
 def login():
-
-    #Baca CSV
     os.system('cls')
+    #Baca CSV
+
     data_akun = pd.read_csv("users.csv")
 
     print("========================================================")
