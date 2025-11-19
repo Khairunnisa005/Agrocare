@@ -1,6 +1,17 @@
 import pandas as pd
 import os
+import csv
 
+# =========================
+#  FILE DATABASE
+# =========================
+USER_FILE = "users.csv"
+PRODUCT_FILE = "products.csv"
+SALES_FILE = "sales.csv"
+
+# =========================
+#  REGISTRASI
+# =========================
 def register():
     os.system('cls')
     username = input("Buat Username: ")
@@ -24,7 +35,8 @@ def register():
     #aku hapus yang paswwor nyaa aja kalok paswword sama ndak papa yang penting username nya aja beda
     if akun_sama:
         print("username sudah pernah terdaftar")
-        register()
+        input("Klik Enter untuk melanjutkan...")
+        login()
     else:
         # Buat row baru
         row_baru = pd.DataFrame({
@@ -39,10 +51,13 @@ def register():
         # Simpan kembali ke CSV
         data_akun.to_csv('users.csv', index=False)
         print("Akun berhasil dibuat")
+        input("Klik Enter untuk melanjutkan...")
 
-
+# =========================
+#  LOGIN
+# =========================
 def login():
-    os.system('cls')
+    os.system('cls')   
 # Baca CSV
     data_akun = pd.read_csv("users.csv")
 
@@ -56,7 +71,8 @@ def login():
     akun = data_akun[data_akun["username"] == username]
 
     if akun.empty:
-        print("\n Username tidak terdaftar. Silahkan daftarr/register telebih dahulu.") 
+        print("\n Username tidak terdaftar. Silahkan daftarr/register telebih dahulu.")
+        input("Klik Enter untuk melanjutkan...") 
         return() 
 
     #kalo usn benar minta passwod
@@ -70,6 +86,7 @@ def login():
     #cek pw
     if password_benar.empty: 
         print("\n Password salah! Silahkan coba lagi.")
+        input("Klik Enter untuk melanjutkan...")
         return() #jika pw salah mka kembali ke menu
 
     # jika usn dan pw benar cek role maka login berhasil
@@ -77,32 +94,120 @@ def login():
 
     # Tampilan selamat datang sesuai role
     if role == "admin":
-        print(f"\n Login berhasil! Selamat datang ADMIN,", username)
+        print(f"\nLogin berhasil! Selamat datang ADMIN,", username)
+        input("Klik Enter untuk melanjutkan...")
+        menu_admin()
     else:
-        print("\n Login berhasil! Selamat datang di Agrocare,", username)
+        print(f"\nLogin berhasil! Selamat datang di Agrocare,", username)
+        input("Klik Enter untuk melanjutkan...")
+        menu_pembeli(username)
+
+# =========================
+#  MENU ADMIN
+# =========================
+tambah_produk = ""
+edit_produk = ""
+hapus_produk = ""
+lihat_produk = ""
+beli_produk = ""
+laporan_pembeli = ""
+laporan_admin = ""
+
+def menu_admin():
+    os.system('cls')
+    while True:
+        print("=== MENU ADMIN ===")
+        print("1. Kelola Produk")
+        print("2. Laporan Penjualan")
+        print("0. Logout")
+        pil = input("Pilih: ")
+
+        if pil == "1":
+            print("\n1. Tambah")
+            print("2. Edit")
+            print("3. Hapus")
+            print("4. Lihat Produk")
+            sub = input("Pilih: ")
+
+            if sub == "1": tambah_produk()
+            elif sub == "2": edit_produk()
+            elif sub == "3": hapus_produk()
+            elif sub == "4": lihat_produk()
+        elif pil == "2":
+            laporan_admin()
+        elif pil == "0":
+            break
+
+# =========================
+#  LAPORAN ADMIN
+# =========================
+def laporan_admin():
+    print("\n=== LAPORAN PENJUALAN ===")
+    with open(SALES_FILE, "r", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            print(f"{row['tanggal']} | {row['pembeli']} | {row['produk']} | {row['jumlah']} | {row['total']}")
+
+# =========================
+#  MENU PEMBELI
+# =========================
+def menu_pembeli(username):
+    os.system('cls')
+    while True:
+        print("=== MENU PEMBELI ===")
+        print("1. Pembelian Produk")
+        print("2. Laporan Pembelian")
+        print("0. Logout")
+        pil = input("Pilih: ")
+
+        if pil == "1":
+            beli_produk(username)
+        elif pil == "2":
+            laporan_pembeli(username)
+        elif pil == "0":
+            break
+
+# =========================
+#  LAPORAN PEMBELI
+# =========================
+def laporan_pembeli(username):
+    print("\n=== LAPORAN PEMBELIAN ANDA ===")
+    with open(SALES_FILE, "r", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            if row["pembeli"] == username:
+                print(f"{row['tanggal']} | {row['produk']} | {row['jumlah']} | {row['total']}")
 
 
 def menu():
-        while True: # menu akan terus mucul sampai user memilih keluar
-            print("========================================================")
-            print("===============selamat datang di Agrocare===============")
-            print("========================================================")
-            print("1. Login")
-            print("2. Register")
-            print("3. Keluar")
-            print("========================================================")
+    os.system('cls')
+    while True: # menu akan terus mucul sampai user memilih keluar
+        print("========================================================")
+        print("=============== Selamat datang di Agrocare =============")
+        print("========================================================")
+        print("1. Login")
+        print("2. Register")
+        print("3. Keluar")
+        print("========================================================")
 
-            pilihan = input("pilih menu (1/2/3):")
+        pilihan = input("pilih menu (1/2/3):")
 
-            if pilihan == "1":
-                login()
-            elif pilihan == "2":
-                register()
-            elif pilihan == "3":
-                print("Terimakasih telah menggunakan Agrocare. Sampai jumpa!")
-                break #keluar dari while true / menghentikan program
-            else:
-                print("\n Pilihan tidak valid! Silahkan masukkan angka 1-3.\n")
+        if pilihan == "1":
+            user = login()
+            if user:
+                if user["role"] == "admin":
+                    menu_admin()
+                else:
+                    menu_pembeli(user["username"])
+            
+        elif pilihan == "2":
+            register()
+
+        elif pilihan == "3":
+            print("Terimakasih telah menggunakan Agrocare. Sampai jumpa!")
+            break #keluar dari while true / menghentikan program
+        else:
+            print("\n Pilihan tidak valid! Silahkan masukkan angka 1-3.\n")
 
 menu()
 
