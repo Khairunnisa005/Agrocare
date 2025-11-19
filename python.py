@@ -81,11 +81,11 @@ def login():
 
     # Tampilan selamat datang sesuai role
     if role == "admin":
-        print(f"\n Login berhasil! Selamat datang ADMIN,", username)
+        print(f"\nLogin berhasil! Selamat datang ADMIN,", username)
         input("Klik Enter untuk melanjutkan...")
         #menu_admind
     else:
-        print(f"\n Login berhasil! Selamat datang di Agrocare,", username)
+        print(f"\nLogin berhasil! Selamat datang di Agrocare,", username)
         input("Klik Enter untuk melanjutkan...")
         #menu_kasir()
 
@@ -94,7 +94,7 @@ def menu():
     os.system('cls')
     while True: # menu akan terus mucul sampai user memilih keluar
         print("========================================================")
-        print("=============== Selamat datang di Agrocare ===============")
+        print("=============== Selamat datang di Agrocare =============")
         print("========================================================")
         print("1. Login")
         print("2. Register")
