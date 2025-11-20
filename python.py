@@ -36,7 +36,6 @@ def register():
     if akun_sama:
         print("username sudah pernah terdaftar")
         input("Klik Enter untuk melanjutkan...")
-        login()
     else:
         # Buat row baru
         row_baru = pd.DataFrame({
@@ -73,7 +72,7 @@ def login():
     if akun.empty:
         print("\n Username tidak terdaftar. Silahkan daftarr/register telebih dahulu.")
         input("Klik Enter untuk melanjutkan...") 
-        return() 
+        return None, None #jika usn salah mka kembali ke menu
 
     #kalo usn benar minta passwod
     password = input("Masukkan Password : ")
@@ -87,7 +86,7 @@ def login():
     if password_benar.empty: 
         print("\n Password salah! Silahkan coba lagi.")
         input("Klik Enter untuk melanjutkan...")
-        return() #jika pw salah mka kembali ke menu
+        return None, None #jika pw salah mka kembali ke menu
 
     # jika usn dan pw benar cek role maka login berhasil
     role = password_benar.iloc[0]["role"]
@@ -96,7 +95,7 @@ def login():
     if role == "admin":
         print(f"\nLogin berhasil! Selamat datang ADMIN,", username)
         input("Klik Enter untuk melanjutkan...")
-        menu_admin()
+        menu_admin(username)
     else:
         print(f"\nLogin berhasil! Selamat datang di Agrocare,", username)
         input("Klik Enter untuk melanjutkan...")
@@ -113,7 +112,7 @@ beli_produk = ""
 laporan_pembeli = ""
 laporan_admin = ""
 
-def menu_admin():
+def menu_admin(username):
     os.system('cls')
     while True:
         print("=== MENU ADMIN ===")
@@ -136,6 +135,8 @@ def menu_admin():
             elif sub == "4": lihat_produk()
         elif pil == "2":
             laporan_admin()
+        elif pil == "3":
+            username = kelola_akun(username)
         elif pil == "0":
             break
 
@@ -143,69 +144,79 @@ def kelola_akun(username):
     while True:
         os.system('cls')
         print("====== KELOLA AKUN ======")
+        print(f"Username saat ini: {username}")
         print("1. Ubah Username")
         print("2. Ubah Password")
-        print("3. kembali/logout")
+        print("3. Kembali ke menu sebelumnya")
 
-        pilih = input(" pilih menu: ")
+        pilih = input(" Pilih menu: ")
 
         if pilih == "1":
             username = ubah_username(username)
         elif pilih == "2":
             ubah_password(username)
         elif pilih == "3":
-            print("kembali ke menu sebelumnya...")
-            return
+            print("Kembali ke menu sebelumnya")
+            return username
         else:
-            print("pilihan tidak valid! silahkan tekan menu 1-3")
+            print("Pilihan tidak valid! silahkan tekan menu 1-3")
         
 def ubah_username(username_lama):
     os.system('cls')
     data_akun = pd.read_csv("users.csv")
 
-    print("================Ubah Username================")
-    username_baru = input("Masukkan username baru: ")
+    print(f"Username saat ini: {username_lama}")
+    print("================UBAH USERNAME================")
+    username_baru = input("Masukkan username baru: ").strip()
 
-    #cek apakah username baru sudah ada
+    #jika user tdk mengetik apa apa maka batal ubah usn, tetap usn lama
+    if not username_baru:
+        return username_lama
+
+    #cek apakah username baru sudah digunakan orang lain
     if username_baru in data_akun["username"]. values:
         print("username sudah sudah terdaftar!")
         return username_lama
-        
+        #jika usn sudah digunakan maka batal,tetap usn lama
+
     #update username
     data_akun.loc[data_akun["username"] == username_lama, "username"] = username_baru
     data_akun.to_csv("users.csv", index=False)
 
-    print("username berhail di ubah!")
-    return username_baru 
-
+    #tampilkan pesan sukses
+    print("Username berhail di ubah!")
+    return username_baru
+    #agar menu utama langsun memakai usn baru
 
 def ubah_password(username):
     os.system('cls')
     data_akun = pd.read_csv("users.csv")
 
-    print("================Ubah Password================")
+    print(f"username saat ini: {username}")
+    print("================UBAH PASSWORD================")
     password_lama = input("Masukkan password lama: ")
 
-    #cek apakah password lama benar
+    #cek apakah password lama benar, mencaribaris di csv yg usn dan pw cocok, kalo tdk ada maka salah
     akun = data_akun[
         (data_akun["username"] == username) &
         (data_akun["password"] == password_lama)
     ]
 
+    #jika pw lama salah maka kembali ke menu kelola akun
     if akun.empty:
-        print("Password lama salah: ")
-        input("tekan enter untuk kembali...")
+        print("Password lama salah ")
+        input("Tekan enter untuk kembali")
         return
     
-    password_baru = input("masukkan password baru:" )
+    password_baru = input("Masukkan password baru:" )
     while not password_baru.strip():
-        print("password tidak boleh kosong!")
-        password_baru = input("masukkan password baru: ")
+        password_baru = input("Masukkan password baru: ")
 
+    #uodate pw di csv
     data_akun.loc[data_akun["username"] == username, "password"] = password_baru
     data_akun.to_csv("users.csv", index=False)
 
-    print("password berhasil diubah!")
+    print("Password berhasil diubah!")
         
 
 
@@ -225,10 +236,11 @@ def laporan_admin():
 def menu_pembeli(username):
     os.system('cls')
     while True:
+        print(f"username saat ini: {username}")
         print("=== MENU PEMBELI ===")
         print("1. Pembelian Produk")
         print("2. Laporan Pembelian")
-        print("3. Kelola Akun: ")
+        print("3. Kelola Akun ")
         print("0. Logout")
         pil = input("Pilih: ")
 
@@ -237,7 +249,7 @@ def menu_pembeli(username):
         elif pil == "2":
             laporan_pembeli(username)
         elif pil == "3":
-            kelola_akun(username)
+            username = kelola_akun(username)
         elif pil == "0":
             break
 
@@ -270,7 +282,7 @@ def menu():
             user = login()
             if user:
                 if user["role"] == "admin":
-                    menu_admin()
+                    menu_admin(usernname)
                 else:
                     menu_pembeli(user["username"])
             
