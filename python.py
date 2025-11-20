@@ -72,7 +72,7 @@ def login():
     if akun.empty:
         print("\n Username tidak terdaftar. Silahkan daftarr/register telebih dahulu.")
         input("Klik Enter untuk melanjutkan...") 
-        return None, None #jika usn salah mka kembali ke menu
+        return {"username": username, "role": role} #jika usn salah mka kembali ke menu
 
     #kalo usn benar minta passwod
     password = input("Masukkan Password : ")
@@ -156,7 +156,7 @@ def kelola_produk():
         lihat_produk(PRODUCT_FILE)
     elif sub == "5":
         os.system('cls')
-        menu_admin(username)
+        menu_admin()
 
 def laporan_penjualan ():
     os.system('cls')
@@ -407,12 +407,7 @@ def menu():
         pilihan = input("pilih menu (1/2/3):")
 
         if pilihan == "1":
-            user = login()
-            if user:
-                if user["role"] == "admin":
-                    menu_admin(usernname)
-                else:
-                    menu_pembeli(user["username"])
+            login()
             
         elif pilihan == "2":
             register()
