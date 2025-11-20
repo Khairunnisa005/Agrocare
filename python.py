@@ -1,7 +1,7 @@
 import pandas as pd
 import os
 import csv
-
+import tabulate
 # =========================
 #  FILE DATABASE
 # =========================
@@ -36,7 +36,6 @@ def register():
     if akun_sama:
         print("username sudah pernah terdaftar")
         input("Klik Enter untuk melanjutkan...")
-        login()
     else:
         # Buat row baru
         row_baru = pd.DataFrame({
@@ -59,7 +58,7 @@ def register():
 def login():
     os.system('cls')   
 # Baca CSV
-    data_akun = pd.read_csv("users.csv")
+    data_akun = pd.read_csv("Agrocare/users.csv")
 
     print("========================================================")
     print("============== SELAMAT DATANG DI AGROCARE ==============")
@@ -73,7 +72,7 @@ def login():
     if akun.empty:
         print("\n Username tidak terdaftar. Silahkan daftarr/register telebih dahulu.")
         input("Klik Enter untuk melanjutkan...") 
-        return() 
+        return None, None #jika usn salah mka kembali ke menu
 
     #kalo usn benar minta passwod
     password = input("Masukkan Password : ")
@@ -87,7 +86,7 @@ def login():
     if password_benar.empty: 
         print("\n Password salah! Silahkan coba lagi.")
         input("Klik Enter untuk melanjutkan...")
-        return() #jika pw salah mka kembali ke menu
+        return None, None #jika pw salah mka kembali ke menu
 
     # jika usn dan pw benar cek role maka login berhasil
     role = password_benar.iloc[0]["role"]
@@ -96,7 +95,7 @@ def login():
     if role == "admin":
         print(f"\n Login berhasil! Selamat datang ADMIN,", username)
         input("Klik Enter untuk melanjutkan...")
-        menu_admin()
+        menu_admin(username)
     else:
         print(f"\n Login berhasil! Selamat datang di Agrocare,", username)
         input("Klik Enter untuk melanjutkan...")
@@ -105,43 +104,252 @@ def login():
 # =========================
 #  MENU ADMIN
 # =========================
-tambah_produk = ""
-edit_produk = ""
-hapus_produk = ""
-lihat_produk = ""
+#tambah_produk = ""
+#edit_produk = ""
+#hapus_produk = ""
+#lihat_produk = ""
 beli_produk = ""
 laporan_pembeli = ""
 laporan_admin = ""
 
-def menu_admin():
+def menu_admin(username):
     os.system('cls')
     while True:
         print("=== MENU ADMIN ===")
         print("1. Kelola Produk")
         print("2. Laporan Penjualan")
         print("0. Logout")
-        pil = input("Pilih: ")
+        pillihan = input("Pilih: ")
 
-        if pil == "1":
-            print("\n1. Tambah")
-            print("2. Edit")
-            print("3. Hapus")
-            print("4. Lihat Produk")
-            sub = input("Pilih: ")
-
-            if sub == "1": tambah_produk()
-            elif sub == "2": edit_produk()
-            elif sub == "3": hapus_produk()
-            elif sub == "4": lihat_produk()
-        elif pil == "2":
-            laporan_admin()
-        elif pil == "0":
+        if pillihan == "1":
+            kelola_produk()
+        elif pillihan == "2": 
+            os.system('cls')
+            laporan_penjualan ()
+        elif pillihan == "3": 
+            username = kelola_akun(username)
+        elif pillihan == "0":
+            os.system('cls')
             break
+
+def kelola_produk():
+    os.system('cls')
+    print("1. Tambah")
+    print("2. Edit")
+    print("3. Hapus")
+    print("4. Lihat Produk")
+    print("5. Kembali")
+    sub = input("Pilih: ")
+
+    if sub == "1": 
+        os.system('cls')
+        tambah_produk(PRODUCT_FILE)
+    elif sub == "2":
+        os.system('cls') 
+        edit_produk(PRODUCT_FILE)
+    elif sub == "3":
+        os.system('cls') 
+        hapus_produk(PRODUCT_FILE)
+    elif sub == "4": 
+        os.system('cls')
+        lihat_produk(PRODUCT_FILE)
+    elif sub == "5":
+        os.system('cls')
+        menu_admin(username)
+
+def laporan_penjualan ():
+    os.system('cls')
+    laporan_admin()
+
+def logout():
+    os.system('cls')
+    input ("Anda telah logout. Sampai jumpa!")
+    os.system('cls')
+    exit()
+
+
+def tambah_produk(PRODUCT_FILE):
+    os.system('cls')
+    print(tabulate.tabulate(PRODUCT_FILE, headers='keys', tablefmt='fancy_grid'))
+    while True:
+        try:
+            nama = input("Masukan nama produk: ").capitalize()
+            stok = float(input("Masukan stok produk: "))
+            harga = float(input("Masukan harga produk: "))
+
+            if (PRODUCT_FILE ['nama'] == nama).any():
+                print("Nama produk sudah terdaftar, silahkan gunakan nama lain!")
+                input("Klik Enter untuk melanjutkan...")
+                tambah_produk(PRODUCT_FILE)
+            else:
+                menambahkan_produk = pd.DataFrame({"nama": [nama], "stok": [stok], "harga": [harga]})
+                PRODUCT_FILE = pd.concat([PRODUCT_FILE, menambahkan_produk])
+                PRODUCT_FILE.to_csv('Agrocare/products.csv', index=False)
+                print("Produk berhasil ditambahkan")
+                break
+        except ValueError:
+            print("Input tidak valid!")
+    input("Klik Enter untuk melanjutkan...")
+    kelola_produk()
+
+
+
+def edit_produk(PRODUCT_FILE):
+    os.system('cls')
+    print(tabulate.tabulate(PRODUCT_FILE, headers='keys', tablefmt='fancy_grid'))
+    while True:
+        try:
+            index_produk = int(input("Masukan index produk: ")) 
+            if index_produk <= 0:
+                print("index tidak valid!")
+                input("Klik Enter untuk melanjutkan...")
+                continue
+            elif 0 <= index_produk < len(PRODUCT_FILE)+1:
+                print("=== PILIHAN ===")
+                print(" nama ")
+                print(" stok ")
+                print(" harga ")
+                pilihan_ubah= input("Apayang ingin anda ubah: ").lower()
+                if pilihan_ubah == "stok":
+                    stok_produk = float(input("Masukan stok produk baru: "))
+                    PRODUCT_FILE.at[index_produk, "stok"] = float(stok_produk)
+                    PRODUCT_FILE.to_csv('produk.csv', index=False)
+                    print("Produk berhasil diubah")
+                elif pilihan_ubah == "harga":
+                    harga_produk = float(input("Masukan harga produk baru: "))
+                    PRODUCT_FILE.at[index_produk, "harga"] = float(harga_produk)
+                    PRODUCT_FILE.to_csv('produk.csv', index=False)
+                    print("Produk berhasil diubah")
+                elif pilihan_ubah == "nama":
+                    harga_produk = input("Masukan nama produk baru: ")
+                    PRODUCT_FILE.at[index_produk, "harga"] = float(harga_produk)
+                    PRODUCT_FILE.to_csv('produk.csv', index=False)
+                    print("Produk berhasil diubah")
+                else :
+                    print("input tidak valid")
+            else:
+                print("Index tidak valid!")
+            break
+        except ValueError:
+            print("Input tidak valid!")
+    input("Klik Enter untuk melanjutkan...")
+    kelola_produk()
+
+def lihat_produk(PRODUCT_FILE):
+    os.system('cls')
+    print(tabulate.tabulate(PRODUCT_FILE, headers='keys', tablefmt='fancy_grid'))
+    input("Klik Enter untuk melanjutkan...")
+    kelola_produk()
+
+def hapus_produk(PRODUCT_FILE):
+    os.system('cls')
+    print(tabulate.tabulate(PRODUCT_FILE, headers='keys', tablefmt='fancy_grid'))
+    while True:
+        try:
+            index_produk = int(input("Masukan index produk: ")) 
+            if index_produk <= 0:
+                print("index tidak valid!")
+                input("Klik Enter untuk melanjutkan...")
+                continue
+            elif 0 <= index_produk < len(PRODUCT_FILE)+1:
+                PRODUCT_FILE = PRODUCT_FILE.drop(index=index_produk)
+                PRODUCT_FILE.to_csv('produk.csv', index=False)
+                print("Produk berhasil dihapus")
+                break
+            else:
+                print("Index tidak valid!")
+        except ValueError:
+            print("Input tidak valid! Masukkan angka.")
+    input("Klik Enter untuk melanjutkan...")
+    kelola_produk()
+
+
+
+def kelola_akun(username):
+    while True:
+        os.system('cls')
+        print("====== KELOLA AKUN ======")
+        print(f"Username saat ini: {username}")
+        print("1. Ubah Username")
+        print("2. Ubah Password")
+        print("3. Kembali ke menu sebelumnya")
+
+        pilih = input(" Pilih menu: ")
+
+        if pilih == "1":
+            username = ubah_username(username)
+        elif pilih == "2":
+            ubah_password(username)
+        elif pilih == "3":
+            print("Kembali ke menu sebelumnya")
+            return username
+        else:
+            print("Pilihan tidak valid! silahkan tekan menu 1-3")
+        
+def ubah_username(username_lama):
+    os.system('cls')
+    data_akun = pd.read_csv("users.csv")
+
+    print(f"Username saat ini: {username_lama}")
+    print("================UBAH USERNAME================")
+    username_baru = input("Masukkan username baru: ").strip()
+
+    #jika user tdk mengetik apa apa maka batal ubah usn, tetap usn lama
+    if not username_baru:
+        return username_lama
+
+    #cek apakah username baru sudah digunakan orang lain
+    if username_baru in data_akun["username"]. values:
+        print("username sudah sudah terdaftar!")
+        return username_lama
+        #jika usn sudah digunakan maka batal,tetap usn lama
+
+    #update username
+    data_akun.loc[data_akun["username"] == username_lama, "username"] = username_baru
+    data_akun.to_csv("users.csv", index=False)
+
+    #tampilkan pesan sukses
+    print("Username berhail di ubah!")
+    return username_baru
+    #agar menu utama langsung memakai usn baru
+
+def ubah_password(username):
+    os.system('cls')
+    data_akun = pd.read_csv("users.csv")
+
+    print("================UBAH PASSWORD================")
+    print(f"username saat ini: {username}")
+    password_lama = input("Masukkan password lama: ")
+
+    #cek apakah password lama benar, mencaribaris di csv yg usn dan pw cocok, kalo tdk ada maka salah
+    akun = data_akun[
+        (data_akun["username"] == username) &
+        (data_akun["password"] == password_lama)
+    ]
+
+    #jika pw lama salah maka kembali ke menu kelola akun
+    if akun.empty:
+        print("Password lama salah ")
+        input("Tekan enter untuk kembali")
+        return
+    
+    password_baru = input("Masukkan password baru:" )
+    while not password_baru.strip():
+        password_baru = input("Masukkan password baru: ")
+
+    #update pw di csv
+    data_akun.loc[data_akun["username"] == username, "password"] = password_baru
+    data_akun.to_csv("users.csv", index=False)
+
+    print("Password berhasil diubah!")
+        
+
 
 # =========================
 #  LAPORAN ADMIN
 # =========================
 def laporan_admin():
+    os.system('cls')
     print("\n=== LAPORAN PENJUALAN ===")
     with open(SALES_FILE, "r", encoding="utf-8") as f:
         reader = csv.DictReader(f)
@@ -154,9 +362,11 @@ def laporan_admin():
 def menu_pembeli(username):
     os.system('cls')
     while True:
+        print(f"username saat ini: {username}")
         print("=== MENU PEMBELI ===")
         print("1. Pembelian Produk")
         print("2. Laporan Pembelian")
+        print("3. Kelola Akun ")
         print("0. Logout")
         pil = input("Pilih: ")
 
@@ -164,6 +374,8 @@ def menu_pembeli(username):
             beli_produk(username)
         elif pil == "2":
             laporan_pembeli(username)
+        elif pil == "3":
+            username = kelola_akun(username)
         elif pil == "0":
             break
 
@@ -171,6 +383,7 @@ def menu_pembeli(username):
 #  LAPORAN PEMBELI
 # =========================
 def laporan_pembeli(username):
+    os.system('cls')
     print("\n=== LAPORAN PEMBELIAN ANDA ===")
     with open(SALES_FILE, "r", encoding="utf-8") as f:
         reader = csv.DictReader(f)
@@ -196,7 +409,7 @@ def menu():
             user = login()
             if user:
                 if user["role"] == "admin":
-                    menu_admin()
+                    menu_admin(usernname)
                 else:
                     menu_pembeli(user["username"])
             
@@ -208,6 +421,4 @@ def menu():
             break #keluar dari while true / menghentikan program
         else:
             print("\n Pilihan tidak valid! Silahkan masukkan angka 1-3.\n")
-
 menu()
-
