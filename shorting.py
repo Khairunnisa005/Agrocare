@@ -1,7 +1,7 @@
+
 import pandas as pd
 from datetime import timedelta
 import tabulate
-
 penjualan = pd.read_csv('sales.csv')
 # Tidak perlu mengimpor datetime dari datetime lagi, cukup timedelta
 penjualan['tanggal'] = pd.to_datetime(penjualan['tanggal'])
