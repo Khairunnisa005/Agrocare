@@ -1,5 +1,7 @@
 import pandas as pd
 import os
+import csv
+import tabulate
 
 def login():
     os.system('cls')
@@ -122,25 +124,6 @@ def kelola_akun(username):
         else:
             print("Pilihan tidak valid!")
 
-def menu_admin(username):
-    while True:
-        os.system('cls')
-        print("==============MENU ADMIN==============")
-        print(f"login sebagai admin: {username}")
-        print("1. kelola akun")
-        print("2. logout")
-
-        pilih = input("pilihan menu:")
-
-        if pilih == "1":
-            kelola_akun(username)
-        elif pilih == "2":
-            print("logout berhasil")
-            return
-        else:
-            print("pilihan tidak valid")
-            input("tekan enter ..")
-        
 
 
 
@@ -164,6 +147,198 @@ def menu_pembeli(username):
             input("tekan enter ..")
 
 
+def kelola_produk():
+    os.system('cls')
+    print("1. Tambah")
+    print("2. Edit")
+    print("3. Hapus")
+    print("4. Lihat Produk")
+    print("5. Kembali")
+    sub = input("Pilih: ")
+
+    if sub == "1": 
+        os.system('cls')
+        tambah_produk(PRODUCT_FILE)
+    elif sub == "2":
+        os.system('cls') 
+        edit_produk(PRODUCT_FILE)
+    elif sub == "3":
+        os.system('cls') 
+        hapus_produk(PRODUCT_FILE)
+    elif sub == "4": 
+        os.system('cls')
+        lihat_produk(PRODUCT_FILE)
+    elif sub == "5":
+        os.system('cls')
+        search_produk(PRODUCT_FILE)
+    elif sub == "6":
+        os.system('cls')
+        menu_admin()
+
+
+
+def search_admin():
+    os.system('cls')
+
+    print("======FITUR SEARCH ADMIN======")
+    print("Login sebagai {username}")
+    print("1. Cari Pengguna")
+    print("2. Cari Produk")
+    print("3. Cari Stok")
+    print("4. Cari harga")
+    pilih = input("pilih: ")
+
+    #cari pengguna
+    if pilih == "1":
+        data = pd.read_csv("users.csv")
+        keyword = input("Masukkan username: ").lower()
+        hasil = data[data["username"].str.lower().str.contains(keyword)]
+        #admin mengetik nama pengguna
+        #.str.constain() = mencari usn dengan mengandung keyword
+        #contoh "an" jadi cocok dengan "andika", "hana", "angga"
+        #mengubah huruf jadi huruf kecil
+
+    #cari produk(nama) seperti pupuk, dll
+    elif pilih == "2":
+        data = pd.read_csv("products.csv")
+        keyword = input("Masukkan nama produk: ").lower()
+        hasil = data[data["nama"].str.lower().str.contains(keyword)]
+
+    #cari stok
+    elif pilih == "3":
+        data = pd.read_csv("products.csv")
+        batas = float(input("tampilkan produk dengan stok <= "))
+        hasil = data[data["stok"] <= batas]
+        #Admin memasukkan batas stok misal 5
+        #Program menampilkan produk dengan stok kurang dari atau sama dengan 5
+        #cek produk hampir habis dan memantau stok barang
+
+
+    #cari harga
+    elif pilih == "4":
+        data = pd.read_csv("products.csv")
+        batas = float(input("Tampilkan produk dengan harga <= "))
+        hasil = data[data["harga"] <= batas]
+        #admin memasukkan batas harga contoh 10.000
+        #Program menampilkan produk lebih murah atau sama dengan harga tersebut
+        #Harga ≤ 10000  untuk menampilkan semua produk yang lebih murah
+
+
+    elif pilih == "5":
+        return
+        #keluar dari fungsi dan kembali ke menu admin.
+
+    else:
+        print("Pilihan tidak valid!")
+        input("Klik enter")
+        return
+        #Jika admin mengetik selain angka 1–5 maka muncul peringatan.
+    
+    #tampilkan hasil
+    if hasil.empty:
+        print("Data tidak ditemukan!")
+    else:
+        print(tabulate.tabulate(hasil, headers="keys", tablefmt="Fancy_grid"))
+        #Jika tabel kosong maka tampil "Data tidak ditemukan"
+        #Jika ada hasil maka tampil tabel rapi menggunakan tabulate
+    
+    input("Klik untuk melanjutkan")
+
+def search_produk_pembeli(username):
+    os.system ('cls')
+    data = pd.read_csv("products.csv")
+
+    print("====== CARI PRODUK ======")
+    print(" loogin sebagai {username}")
+    print("1. Cari berdasarkan nama produk")
+    print("2. cari berdasarkan harga mininmum")
+    print("3. kembali ke menu sebelumnya")
+    print("4. Kembali")
+    pilih = input("piliih: ")
+
+    if pilih == "1":
+        keyword = input("Masukkan nama produk: ").lower()
+        hasil = data[data["nama"].str.lower().str.constains(keyword)]
+        # keyword = ... lowes() dibuat huruf kecil agarpncarian tidak case sensitive
+        #.str.cotains(keyword) untuk mencari teks mengandung keyword
+       #contohnya cari pupuk, cocok dengan pupuk a, pupuk b
+        #data["nama"].str.lower() nama produk dibuathufuf kecil
+    elif pilih == "2":
+        batas = float(input("Masukkan harga maksimun: "))
+        hasil = data[data["harga"] <= batas]
+         #batas = angka input dari user
+         #datam["harga"] <= batas untuk menaplikan produk dengan harga lebih murah atau sama dengan batas
+         #contoh jika batas = 10.000
+         #maka hasilnya produk harga 5.000, 8.000
+    elif pilih == "3":
+        batas = float(input("Masukkan harga minimum:"))
+        hasil = data[data["harga"] >= batas]
+    
+    elif pilih == "4":
+        return
+    #mengembalikan user ke menu pembeli
+    
+    else:
+        print("Pilihan tidak valid! silahkan pilih 1-4")
+        input("klik enter")
+        return
+    
+    if hasil.empty: # cek apakah dataframe kosong
+        print("Produk tidak ditemukan!")
+    else:
+        print(tabulate.tabulate(hasil, headers="keys", tablefmt="fancy_grid"))
+
+    input("tekan enter untuk kembali")
+    #agar hasil tidak hilang kembali ke menu
+
+
+def menu_admin(username):
+    os.system('cls')
+    while True:
+        print("=== MENU ADMIN ===")
+        print("1. Kelola Produk")
+        print("2. Laporan Penjualan")
+        print("3. Kelola Akun")
+        print("4. Search")
+        print("0. Logout")
+        pillihan = input("Pilih: ")
+
+        if pillihan == "1":
+            kelola_produk()
+        elif pillihan == "2": 
+            os.system('cls')
+            laporan_penjualan ()
+        elif pillihan == "3": 
+            username = kelola_akun(username)
+        elif pilhan == "4":
+            search_admin()
+        elif pillihan == "0":
+            os.system('cls')
+            break
+
+
+def menu_pembeli(username):
+    os.system('cls')
+    while True:
+        print(f"username saat ini: {username}")
+        print("=== MENU PEMBELI ===")
+        print("1. Pembelian Produk")
+        print("2. Laporan Pembelian")
+        print("3. Kelola Akun ")
+        print("4. Cari Produk")
+        print("0. Logout")
+        pil = input("Pilih: ")
+
+        if pil == "1":
+            beli_produk(username)
+        elif pil == "2":
+            laporan_pembeli(username)
+        elif pil == "3":
+            username = kelola_akun(username)
+        elif pil =="4":
+            search_produk_pembeli(username)
+        elif pil == "0":
+            break
 
 def menu():
     os.system('cls')    
@@ -196,3 +371,6 @@ def menu():
             print("\n Pilihan tidak valid! Silahkan masukkan angka 1-3.\n")
 
 menu()
+
+
+     

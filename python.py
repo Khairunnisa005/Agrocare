@@ -76,7 +76,7 @@ def login():
     if akun.empty:
         print("\n Username tidak terdaftar. Silahkan daftarr/register telebih dahulu.")
         input("Klik Enter untuk melanjutkan...") 
-        return None #jika usn salah mka kembali ke menu
+        return {"username": username, "role": role} #jika usn salah mka kembali ke menu
 
     #kalo usn benar minta passwod
     password = input("Masukkan Password : ")
