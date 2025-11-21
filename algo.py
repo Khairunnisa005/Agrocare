@@ -3,6 +3,11 @@ import os
 import csv
 import tabulate
 
+
+USER_FILE = "users.csv"
+PRODUCT_FILE = "products.csv"
+SALES_FILE = "sales.csv"
+
 def login():
     os.system('cls')
     #Baca CSV
@@ -125,28 +130,6 @@ def kelola_akun(username):
             print("Pilihan tidak valid!")
 
 
-
-
-def menu_pembeli(username):
-    while True:
-        os.system('cls')
-        print("==============MENU PEMBELI==============")
-        print(f"login sebagai pembeli: {username}")
-        print("1. kelola akun")
-        print("2 logout")
-
-        pilih = input("pilih menu: ")
-
-        if pilih  == "1":
-            kelola_akun(username)
-        elif pilih == "2":
-            print("logout berhasil.")
-            return
-        else:
-            print("pilihan tidak valid")
-            input("tekan enter ..")
-
-
 def kelola_produk():
     os.system('cls')
     print("1. Tambah")
@@ -251,14 +234,14 @@ def search_produk_pembeli(username):
     print("====== CARI PRODUK ======")
     print(" loogin sebagai {username}")
     print("1. Cari berdasarkan nama produk")
-    print("2. cari berdasarkan harga mininmum")
-    print("3. kembali ke menu sebelumnya")
+    print("2. cari berdasarkan harga maximum")
+    print("3. kembali ke menu minimum")
     print("4. Kembali")
     pilih = input("piliih: ")
 
     if pilih == "1":
         keyword = input("Masukkan nama produk: ").lower()
-        hasil = data[data["nama"].str.lower().str.constains(keyword)]
+        hasil = data[data["nama"].str.lower().str.contains(keyword)]
         # keyword = ... lowes() dibuat huruf kecil agarpncarian tidak case sensitive
         #.str.cotains(keyword) untuk mencari teks mengandung keyword
        #contohnya cari pupuk, cocok dengan pupuk a, pupuk b
@@ -292,6 +275,92 @@ def search_produk_pembeli(username):
     #agar hasil tidak hilang kembali ke menu
 
 
+
+
+def beli_produk(username):
+    os.system('cls')
+    data = pd.read_csv(PRODUCT_FILE)
+
+    print("===== BELI PRODUK =====")
+    print(f"Login sebagai: {username}\n")
+
+    #menampilkan produk dalam bentuk kotak rapi
+    #pembeli bisa melihat index, nama, stok dan harga
+    print(tabulate.tabulate(data, headers='key', tablefmt='fancy_grid'))
+
+    #jika bukan angka maka eror
+    try: #pembeli memilih produk berdasarkan index baris di tabel
+        indeks = int(input("\nMasukkan index produk yang ingin dibeli: "))
+    except ValueError: #jika bukan angka maka akan eror
+        print("Input harus angka!")
+        input("Klik Enter")
+        return
+    
+    #ambil data produk sesuai indeks
+    produk = data.loc[indeks] #mengambil satu bars data, seperti stok, harga, nama produk
+
+#menampilkan informasi lengkap produk
+    print("\n==== DETAIL PRODUK ====")
+    print(f"Nama    : {produk['nama']}")
+    print(f"Stok    : {produk['stok']}")
+    print(f"Harga   : {produk['harga']}")
+
+    try: # pembeli memasukkan berapa banyak barang yg ingin dibeli
+        jumlah = int(input("\nMasukkan jumlah pembelian: "))
+    except ValueError: # jika bukan angka maka akan eror
+        print("Jumlah harus angka!")
+        input("Klik Enter")
+        return
+    
+    #cek stok
+    if jumlah > produk['stok']:
+        print("Stok tidak cukup!")
+        input("Klik Enter")
+        return
+    #jika barang yang ingin dibeli lebih besar dari stok 
+    # tersedia maka akan muncuk "stok tdk cukup"
+
+    #hitung total
+    total = jumlah * produk['harga']
+    print(f"\nTOTAL PEMBAYARAN = {total}")
+    #menghitung biaya yang harus dibayar
+    # jumla * harga per item
+
+    confirm = input("\nLanjutkan pembelian? (y/n): ").lower()
+    
+    #jika "y" maka lanjut
+    #jika "n" maka pembelian dibatalkan
+
+    if confirm != "y":
+        print("Pembelian dibtalkan")
+        input("Klik enter")
+        return
+    
+    #stok dikurangi dan file berada di product.csv akan diperbarui
+    data.at[indeks, 'stok'] = produk['stok'] - jumlah
+    data.to_csv(PRODUCT_FILE, index=False)
+
+    #simpan transaksi ke sales.csv
+    from datetime import datetime
+    tanggal = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    # mencatat riwayat pembelian : tanggal, siapa yg beli, nama produk
+    #jumlah beli dan total pembayaran. menjadi catatan di transaksi
+    with open(SALES_FILE, "a", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow([tanggal, username, produk['nama'], jumlah,total])
+
+    #Memberi output bahwa transaksi berhasil
+    print("\n===PEMBELIAN BERHASIL===")
+    print(f"{username} membeli {jumlah} x {produk['nama']}")
+    print(f"Total Bayar : {total}")
+    print(f"Tanggal     : {tanggal}")
+
+    #menunggu user menekan enter
+    input("\nKlik Enter untuk kembali")    
+    # Supaya tampilan tidak langsung tertutup
+
+
 def menu_admin(username):
     os.system('cls')
     while True:
@@ -310,7 +379,7 @@ def menu_admin(username):
             laporan_penjualan ()
         elif pillihan == "3": 
             username = kelola_akun(username)
-        elif pilhan == "4":
+        elif pillihan == "4":
             search_admin()
         elif pillihan == "0":
             os.system('cls')
@@ -339,6 +408,7 @@ def menu_pembeli(username):
             search_produk_pembeli(username)
         elif pil == "0":
             break
+
 
 def menu():
     os.system('cls')    
