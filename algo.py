@@ -241,26 +241,31 @@ def beli_produk(username):
     
     keranjang = [] #list untuk menampung banyak barang
 
-    while True:
+    while True: #loop utama menambahkan item, akan terus berulang sampai pembeli
+        #menjawab tidak pada petanyaan "mau beli produk lain?"
         os.system('cls')
         data = pd.read_csv(PRODUCT_FILE)
 
         print("==== BELI PRODUK ====")
         print(F"Login sebagai : {username}")
         print(tabulate.tabulate(data, headers="keys", tablefmt="fancy_grid"))
+        #menampilkan tabel rapi pakai tabulate agara pembeli tau indeks, nama, dtok dan harga
 
-        try:
+        try: # jika bukan angka maka akan error dan tampil pesan  
             indeks = int(input("\nMasukkan Indeks produk yang ingin dibeli"))
         except ValueError:
             print("Input harus angka!")
             input("Klik enter")
-            continue
+            continue #continue (ulang dari awal loop)
 
+        #indeks < 0 artinya penggunaa memasukkan angka negatif maka tidak mungkin menjadi baris tabel
+        #inndeks >= len(data) jika jumlah prduk misal 3 maka len data 3, indeks valid nya yaitu 0,1,2
         if indeks < 0 or indeks >= len(data):
             print("indeks tidak valid!")
             input("Klik enter")
             continue
 
+        #ambil baris produk yaitu nam, stok, harga
         produk = data.loc[indeks]
 
         #detail produk
@@ -269,21 +274,25 @@ def beli_produk(username):
         print(f"Stok    : {produk['stok']}")
         print(f"Harga   : {produk['harga']}")
 
-        try:
+        try: # input harus angka jika tidak maka akan eror
             jumlah = int(input("Masukkan jumlah pembelian: "))
         except ValueError:
             print("Jumlah harus angka")
             input("klik enter")
             continue
 
+        #cek stok cukup atau tidak, jika jumlahnya melebihi stok maka 
+        #beripesan dan kembali ke pilih produk (loop continue)
         if jumlah> produk['stok']:
             print("Stok tidak cukup!")
             input("Klik enter")
             continue
 
+        #hitunng sub total
         subtotal = jumlah * produk['harga']
 
         #masukkan ke keranjang
+        #simpan indeks untuk (mengurangi stok) nama, jumlah dan harga perunit subtotal
         keranjang.append({
             "index": indeks,
             "nama": produk["nama"],
@@ -292,26 +301,34 @@ def beli_produk(username):
             "subtotal": subtotal
         })
 
+        #tampilkan pesan
         print(f"\n {produk['nama']} x {jumlah} ditambahkan ke keranjang!")
 
+        #tanya mau beli lagi
+        #jika jawaban bukan 'y' maka keluar dari pengisian keranjang
         lanjut = input("Mau beli produk lain? (y/n): ").lower()
         if lanjut != "y":
             break
 
-        #jika keranjang kosong 
+        #jika keranjang kosong, batalkan dan kembali ke menu
         if not keranjang:
             print("Keranjang kosong, tidak ada pembelian")
             input("enter")
             return
+        
         #tampilkan isi keranjang
         os.system('cls')
     print("==== ISI KERANJANG ====")
     for item in keranjang:
         print(f" - {item['nama']} x {item['jumlah']} = Rp{item['subtotal']}")
+        #menunjukkan tiap item dan subtotalnya
 
+    #hitung total yang harus dibayar
     total_bayar = sum(item['subtotal'] for item in keranjang)
     print(f"TOTAL BAYAR = RP{total_bayar}")
 
+    #konfirmasi pembayaran 
+    #jika bukan 'y' maka batalkan transaksi (tidak mengubah stok, tidak menulis sales)
     konfirmasi = input("Lanjutkan pembayaran? (y/n): ").lower()
     if konfirmasi != "y":
         print("Pembelian dibatalkan")
@@ -319,12 +336,16 @@ def beli_produk(username):
         return
     
     #Proses kurangi stok
+    #untuk setiap item di keranjang, stok baris dengan indeks dikurangi jumlah yang dibeli
+    #stelah semua perubahan, tulis kembali seluruh dataframe data ke produk
     for item in keranjang:
         data.loc[item["index"], "stok"] -= item["jumlah"]
-
     data.to_csv(PRODUCT_FILE, index=False)
 
     #catat transaksi
+    #buat timestamp sekarang 
+    #buka sales csv dalam mode append untuk setiap item tulis baris baru
+    #tanggal, usn, nama produk dan jumlah
     from datetime import datetime
     tanggal = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
@@ -332,6 +353,7 @@ def beli_produk(username):
         writer = csv.writer(f)
         for item in keranjang:
             writer.writerow([tanggal, username, item["nama"], item["jumlah"]])
+            #
 
     #output berhasl
     print("\n=== TRANSAKSI BERHASIL ===")
