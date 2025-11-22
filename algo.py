@@ -165,49 +165,22 @@ def search_admin():
 
     print("======FITUR SEARCH ADMIN======")
     print("Login sebagai {username}")
-    print("1. Cari Pengguna")
-    print("2. Cari Produk")
-    print("3. Cari Stok")
-    print("4. Cari harga")
+    print("1. Cari Produk")
+    print("2. Kembali")
+    
     pilih = input("pilih: ")
 
-    #cari pengguna
-    if pilih == "1":
-        data = pd.read_csv("users.csv")
-        keyword = input("Masukkan username: ").lower()
-        hasil = data[data["username"].str.lower().str.contains(keyword)]
-        #admin mengetik nama pengguna
-        #.str.constain() = mencari usn dengan mengandung keyword
-        #contoh "an" jadi cocok dengan "andika", "hana", "angga"
-        #mengubah huruf jadi huruf kecil
-
     #cari produk(nama) seperti pupuk, dll
-    elif pilih == "2":
+    if pilih == "1":
         data = pd.read_csv("products.csv")
         keyword = input("Masukkan nama produk: ").lower()
         hasil = data[data["nama"].str.lower().str.contains(keyword)]
+        #admin mengetik nama produk
+        #.str.constain() = mencari produk dengan mengandung keyword
+        #contoh "pupuk" jadi cocok dengan "pupuk a", "pupuk b", "pupuk c"
+        #mengubah huruf jadi huruf kecil
 
-    #cari stok
-    elif pilih == "3":
-        data = pd.read_csv("products.csv")
-        batas = float(input("tampilkan produk dengan stok <= "))
-        hasil = data[data["stok"] <= batas]
-        #Admin memasukkan batas stok misal 5
-        #Program menampilkan produk dengan stok kurang dari atau sama dengan 5
-        #cek produk hampir habis dan memantau stok barang
-
-
-    #cari harga
-    elif pilih == "4":
-        data = pd.read_csv("products.csv")
-        batas = float(input("Tampilkan produk dengan harga <= "))
-        hasil = data[data["harga"] <= batas]
-        #admin memasukkan batas harga contoh 10.000
-        #Program menampilkan produk lebih murah atau sama dengan harga tersebut
-        #Harga ≤ 10000  untuk menampilkan semua produk yang lebih murah
-
-
-    elif pilih == "5":
+    elif pilih == "2":
         return
         #keluar dari fungsi dan kembali ke menu admin.
 
@@ -234,9 +207,7 @@ def search_produk_pembeli(username):
     print("====== CARI PRODUK ======")
     print(" loogin sebagai {username}")
     print("1. Cari berdasarkan nama produk")
-    print("2. cari berdasarkan harga maximum")
-    print("3. kembali ke menu minimum")
-    print("4. Kembali")
+    print("2. Kembali")
     pilih = input("piliih: ")
 
     if pilih == "1":
@@ -246,18 +217,8 @@ def search_produk_pembeli(username):
         #.str.cotains(keyword) untuk mencari teks mengandung keyword
        #contohnya cari pupuk, cocok dengan pupuk a, pupuk b
         #data["nama"].str.lower() nama produk dibuathufuf kecil
-    elif pilih == "2":
-        batas = float(input("Masukkan harga maksimun: "))
-        hasil = data[data["harga"] <= batas]
-         #batas = angka input dari user
-         #datam["harga"] <= batas untuk menaplikan produk dengan harga lebih murah atau sama dengan batas
-         #contoh jika batas = 10.000
-         #maka hasilnya produk harga 5.000, 8.000
-    elif pilih == "3":
-        batas = float(input("Masukkan harga minimum:"))
-        hasil = data[data["harga"] >= batas]
     
-    elif pilih == "4":
+    elif pilih == "2":
         return
     #mengembalikan user ke menu pembeli
     
@@ -275,90 +236,112 @@ def search_produk_pembeli(username):
     #agar hasil tidak hilang kembali ke menu
 
 
-
-
 def beli_produk(username):
     os.system('cls')
-    data = pd.read_csv(PRODUCT_FILE)
+    
+    keranjang = [] #list untuk menampung banyak barang
 
-    print("===== BELI PRODUK =====")
-    print(f"Login sebagai: {username}\n")
+    while True:
+        os.system('cls')
+        data = pd.read_csv(PRODUCT_FILE)
 
-    #menampilkan produk dalam bentuk kotak rapi
-    #pembeli bisa melihat index, nama, stok dan harga
-    print(tabulate.tabulate(data, headers='key', tablefmt='fancy_grid'))
+        print("==== BELI PRODUK ====")
+        print(F"Login sebagai : {username}")
+        print(tabulate.tabulate(data, headers="keys", tablefmt="fancy_grid"))
 
-    #jika bukan angka maka eror
-    try: #pembeli memilih produk berdasarkan index baris di tabel
-        indeks = int(input("\nMasukkan index produk yang ingin dibeli: "))
-    except ValueError: #jika bukan angka maka akan eror
-        print("Input harus angka!")
-        input("Klik Enter")
+        try:
+            indeks = int(input("\nMasukkan Indeks produk yang ingin dibeli"))
+        except ValueError:
+            print("Input harus angka!")
+            input("Klik enter")
+            continue
+
+        if indeks < 0 or indeks >= len(data):
+            print("indeks tidak valid!")
+            input("Klik enter")
+            continue
+
+        produk = data.loc[indeks]
+
+        #detail produk
+        print("==== DETAIL PRODUK ====")
+        print(f"Nama    : {produk['nama']}")
+        print(f"Stok    : {produk['stok']}")
+        print(f"Harga   : {produk['harga']}")
+
+        try:
+            jumlah = int(input("Masukkan jumlah pembelian: "))
+        except ValueError:
+            print("Jumlah harus angka")
+            input("klik enter")
+            continue
+
+        if jumlah> produk['stok']:
+            print("Stok tidak cukup!")
+            input("Klik enter")
+            continue
+
+        subtotal = jumlah * produk['harga']
+
+        #masukkan ke keranjang
+        keranjang.append({
+            "index": indeks,
+            "nama": produk["nama"],
+            "jumlah": jumlah,
+            "harga": produk["harga"],
+            "subtotal": subtotal
+        })
+
+        print(f"\n {produk['nama']} x {jumlah} ditambahkan ke keranjang!")
+
+        lanjut = input("Mau beli produk lain? (y/n): ").lower()
+        if lanjut != "y":
+            break
+
+        #jika keranjang kosong 
+        if not keranjang:
+            print("Keranjang kosong, tidak ada pembelian")
+            input("enter")
+            return
+        #tampilkan isi keranjang
+        os.system('cls')
+    print("==== ISI KERANJANG ====")
+    for item in keranjang:
+        print(f" - {item['nama']} x {item['jumlah']} = Rp{item['subtotal']}")
+
+    total_bayar = sum(item['subtotal'] for item in keranjang)
+    print(f"TOTAL BAYAR = RP{total_bayar}")
+
+    konfirmasi = input("Lanjutkan pembayaran? (y/n): ").lower()
+    if konfirmasi != "y":
+        print("Pembelian dibatalkan")
+        input("Enter")
         return
     
-    #ambil data produk sesuai indeks
-    produk = data.loc[indeks] #mengambil satu bars data, seperti stok, harga, nama produk
+    #Proses kurangi stok
+    for item in keranjang:
+        data.loc[item["index"], "stok"] -= item["jumlah"]
 
-#menampilkan informasi lengkap produk
-    print("\n==== DETAIL PRODUK ====")
-    print(f"Nama    : {produk['nama']}")
-    print(f"Stok    : {produk['stok']}")
-    print(f"Harga   : {produk['harga']}")
-
-    try: # pembeli memasukkan berapa banyak barang yg ingin dibeli
-        jumlah = int(input("\nMasukkan jumlah pembelian: "))
-    except ValueError: # jika bukan angka maka akan eror
-        print("Jumlah harus angka!")
-        input("Klik Enter")
-        return
-    
-    #cek stok
-    if jumlah > produk['stok']:
-        print("Stok tidak cukup!")
-        input("Klik Enter")
-        return
-    #jika barang yang ingin dibeli lebih besar dari stok 
-    # tersedia maka akan muncuk "stok tdk cukup"
-
-    #hitung total
-    total = jumlah * produk['harga']
-    print(f"\nTOTAL PEMBAYARAN = {total}")
-    #menghitung biaya yang harus dibayar
-    # jumla * harga per item
-
-    confirm = input("\nLanjutkan pembelian? (y/n): ").lower()
-    
-    #jika "y" maka lanjut
-    #jika "n" maka pembelian dibatalkan
-
-    if confirm != "y":
-        print("Pembelian dibtalkan")
-        input("Klik enter")
-        return
-    
-    #stok dikurangi dan file berada di product.csv akan diperbarui
-    data.at[indeks, 'stok'] = produk['stok'] - jumlah
     data.to_csv(PRODUCT_FILE, index=False)
 
-    #simpan transaksi ke sales.csv
+    #catat transaksi
     from datetime import datetime
     tanggal = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-    # mencatat riwayat pembelian : tanggal, siapa yg beli, nama produk
-    #jumlah beli dan total pembayaran. menjadi catatan di transaksi
-    with open(SALES_FILE, "a", newline="") as f:
+    with open (SALES_FILE, "a", newline="") as f:
         writer = csv.writer(f)
-        writer.writerow([tanggal, username, produk['nama'], jumlah,total])
+        for item in keranjang:
+            writer.writerow([tanggal, username, item["nama"], item["jumlah"]])
 
-    #Memberi output bahwa transaksi berhasil
-    print("\n===PEMBELIAN BERHASIL===")
-    print(f"{username} membeli {jumlah} x {produk['nama']}")
-    print(f"Total Bayar : {total}")
-    print(f"Tanggal     : {tanggal}")
+    #output berhasl
+    print("\n=== TRANSAKSI BERHASIL ===")
+    print(f"Tanggal : {tanggal}")
+    print(f"Total   : Rp{total_bayar}")
+    print(f"Detail pembelian:")
+    for item in keranjang:
+        print(f"- {item['nama']} x {item['jumlah']}")
+    input("klik enter untuk kembali ke menu")
 
-    #menunggu user menekan enter
-    input("\nKlik Enter untuk kembali")    
-    # Supaya tampilan tidak langsung tertutup
 
 
 def menu_admin(username):
