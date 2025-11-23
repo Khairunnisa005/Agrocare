@@ -514,7 +514,7 @@ def menu():
     os.system('cls')
     while True: # menu akan terus mucul sampai user memilih keluar
         print("========================================================")
-        print("=============== Selamat datang di Agrocare ===============")
+        print("=============== Selamat datang di Agrocare =============")
         print("========================================================")
         print("1. Login")
         print("2. Register")
