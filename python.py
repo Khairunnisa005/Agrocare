@@ -635,16 +635,6 @@ def menu_kelola_produk():
 if __name__ == "__main__":
     ensure_product_file()
         
-# =========================
-#  LAPORAN ADMIN
-# =========================
-#def laporan_admin(): #fungsi laporan admin
-    #os.system('cls')
-    #print("\n=== LAPORAN PENJUALAN ===")
-    # with open(SALES_FILE, "r", encoding="utf-8") as f: #membuka laporan csv yang disimpan di variabel SALES_FILE lalu membacanya, objek ini disimpan dalam var f
-    #     reader = csv.DictReader(f) #membaca file csv, kemudian setiap barisnya diubah menjadi dictionary
-    #     for row in reader: #perulangan setiap baris dalam file csv
-    #         print(f"{row['tanggal']} | {row['pembeli']} | {row['produk']} | {row['jumlah']} | {row['total']}") #tampilan laporan nantinya
 
 # =========================
 #  MENU PEMBELI
@@ -667,12 +657,16 @@ def menu_pembeli(username):
         pil = input("Pilih: ")
 
         if pil == "1":
+            os.system('cls')
             beli_produk(username)
         elif pil == "2":
+            os.system('cls')
             laporan_pembeli(username)
         elif pil == "3":
+            os.system('cls')
             username = kelola_akun(username)
         elif pil == "4":
+            os.system('cls')
             lihat_produk()
         elif pil == "0":
             break
@@ -716,10 +710,7 @@ def laporan_admin():
         if pillihan == "1":
             #menentukan batas tanggal dari data yang ingin dikluarkan 
             start_date = end_date - timedelta(days=1)
-            filtered = penjualan[
-                (penjualan['tanggal'] >= start_date) & 
-                (penjualan['tanggal'] < end_date) 
-            ]
+            filtered = penjualan[end_date]
             print(tabulate.tabulate(filtered, headers='keys', tablefmt='fancy_grid'))
             input("klik enter untuk lanjut.......")
             laporan_admin()
@@ -787,8 +778,8 @@ menu()
 
 
 
-# error handling ketika username salah
-# menu pembelian error
-# 'laporan pembelian anda\n'
-# laporan penjualan rapiin tabelnya
-# error handling untuk salah pilih menu di kelola akun
+# error handling ketika username salah (done)
+# menu pembelian error (done)
+# 'laporan pembelian anda\n' (emang gitu gabisa pakek tabulet)
+# laporan penjualan rapiin tabelnya. laporan penjualan ?
+# error handling untuk salah pilih menu di kelola akun (done)
