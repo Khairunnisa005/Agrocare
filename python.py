@@ -1,4 +1,5 @@
 import pandas as pd
+from datetime import timedelta
 import os
 import csv
 import tabulate
@@ -460,13 +461,13 @@ if __name__ == "__main__":
 # =========================
 #  LAPORAN ADMIN
 # =========================
-def laporan_admin(): #fungsi laporan admin
-    os.system('cls')
-    print("\n=== LAPORAN PENJUALAN ===")
-    with open(SALES_FILE, "r", encoding="utf-8") as f: #membuka laporan csv yang disimpan di variabel SALES_FILE lalu membacanya, objek ini disimpan dalam var f
-        reader = csv.DictReader(f) #membaca file csv, kemudian setiap barisnya diubah menjadi dictionary
-        for row in reader: #perulangan setiap baris dalam file csv
-            print(f"{row['tanggal']} | {row['pembeli']} | {row['produk']} | {row['jumlah']} | {row['total']}") #tampilan laporan nantinya
+#def laporan_admin(): #fungsi laporan admin
+    #os.system('cls')
+    #print("\n=== LAPORAN PENJUALAN ===")
+    # with open(SALES_FILE, "r", encoding="utf-8") as f: #membuka laporan csv yang disimpan di variabel SALES_FILE lalu membacanya, objek ini disimpan dalam var f
+    #     reader = csv.DictReader(f) #membaca file csv, kemudian setiap barisnya diubah menjadi dictionary
+    #     for row in reader: #perulangan setiap baris dalam file csv
+    #         print(f"{row['tanggal']} | {row['pembeli']} | {row['produk']} | {row['jumlah']} | {row['total']}") #tampilan laporan nantinya
 
 # =========================
 #  MENU PEMBELI
@@ -507,6 +508,64 @@ def laporan_pembeli(username): #fungsi laporan pembeli
             if row["pembeli"] == username:
                 print(f"{row['tanggal']} | {row['produk']} | {row['jumlah']} | {row['total']}") #tampilan laporan
 
+#==============
+#== Shorting ==
+#==============
+def laporan_admin():
+    os.system('cls')
+    #untuk membaca data jual beli
+    penjualan = pd.read_csv('sales.csv')
+    # program ini untuk merubah kolom 'tanggal' menjadi datetime
+    penjualan['tanggal'] = pd.to_datetime(penjualan['tanggal'])
+
+    # Cari nilai maksimum (tanggal terbaru) di kolom 'tanggal'
+    tanggal_terakhir_data = penjualan['tanggal'].dt.normalize().max()
+
+    # Tentukan batas akhir satu hari setelah tanggal terakhir di data.
+    end_date = tanggal_terakhir_data + timedelta(days=1)
+
+    while True:
+        print("== Pilih waktu nya ==")
+        print("1. Data hari ini")
+        print("2. Data 1 Minggu ")
+        print("3. Data 1 Bulan")
+        print("4. Keluar ")
+        pillihan = input("Masukkan perintah berupa angka 1/2/3/4: ")
+
+        if pillihan == "1":
+            #menentukan batas tanggal dari data yang ingin dikluarkan 
+            start_date = end_date - timedelta(days=1)
+            filtered = penjualan[
+                (penjualan['tanggal'] >= start_date) & 
+                (penjualan['tanggal'] < end_date) 
+            ]
+            print(tabulate.tabulate(filtered, headers='keys', tablefmt='fancy_grid'))
+            input("klik enter untuk lanjut.......")
+            laporan_admin()
+        elif pillihan == "2":
+            start_date = end_date - timedelta(days=7)
+            filtered = penjualan[
+                (penjualan['tanggal'] >= start_date) & 
+                (penjualan['tanggal'] < end_date) 
+            ]
+            print(tabulate.tabulate(filtered, headers='keys', tablefmt='fancy_grid'))
+            input("klik enter untuk lanjut.......")
+            laporan_admin()
+        elif pillihan == "3":
+            start_date = end_date - timedelta(days=30)
+            filtered = penjualan[
+                (penjualan['tanggal'] >= start_date) & 
+                (penjualan['tanggal'] < end_date) 
+            ]
+            print(tabulate.tabulate(filtered, headers='keys', tablefmt='fancy_grid'))
+            input("klik enter untuk lanjut.......")
+            laporan_admin()
+        elif pillihan =="4":
+            input("klik enter untuk lanjut.......")
+            menu_admin(["username"])
+        else :
+            print("input ayang anda masukkan salah")
+
 # =========================
 #  MENU UTAMA
 # =========================
@@ -546,3 +605,10 @@ menu()
 
 
 
+
+
+# error handling ketika username salah
+# menu pembelian error
+# 'laporan pembelian anda\n'
+# laporan penjualan rapiin tabelnya
+# error handling untuk salah pilih menu di kelola akun
