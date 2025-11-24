@@ -646,12 +646,16 @@ def menu_pembeli(username):
         pil = input("Pilih: ")
 
         if pil == "1":
+            os.system('cls')
             beli_produk(username)
         elif pil == "2":
+            os.system('cls')
             laporan_pembeli(username)
         elif pil == "3":
+            os.system('cls')
             username = kelola_akun(username)
         elif pil == "4":
+            os.system('cls')
             lihat_produk()
         elif pil == "0":
             break
@@ -763,8 +767,8 @@ menu()
 
 
 
-# error handling ketika username salah
-# menu pembelian error
-# 'laporan pembelian anda\n'
-# laporan penjualan rapiin tabelnya
-# error handling untuk salah pilih menu di kelola akun
+# error handling ketika username salah (done)
+# menu pembelian error (done)
+# 'laporan pembelian anda\n' (emang gitu gabisa pakek tabulet)
+# laporan penjualan rapiin tabelnya. laporan penjualan ?
+# error handling untuk salah pilih menu di kelola akun (done)
