@@ -473,7 +473,9 @@ def beli_produk(username):
         os.system('cls')
         data = pd.read_csv(PRODUCT_FILE)
 
-        print("==== BELI PRODUK ====")
+        print("================================")
+        print("========= BELI PRODUK ==========")
+        print("================================")
         print(F"Login sebagai : {username}")
         print(tabulate.tabulate(data, headers="keys", tablefmt="fancy_grid"))
         #menampilkan tabel rapi pakai tabulate agara pembeli tau indeks, nama, dtok dan harga
@@ -496,10 +498,11 @@ def beli_produk(username):
         produk = data.loc[indeks]
 
         #detail produk
-        print("==== DETAIL PRODUK ====")
+        print("============= DETAIL PRODUK ============")
         print(f"Nama    : {produk['nama']}")
         print(f"Stok    : {produk['stok']}")
-        print(f"Harga   : {produk['harga']}")
+        print(f"Harga   : Rp{produk['harga']:,}".replace(",", "."))
+        print("=======================================\n")
 
         try: # input harus angka jika tidak maka akan eror
             jumlah = int(input("Masukkan jumlah pembelian: "))
@@ -510,7 +513,7 @@ def beli_produk(username):
 
         #cek stok cukup atau tidak, jika jumlahnya melebihi stok maka 
         #beripesan dan kembali ke pilih produk (loop continue)
-        if jumlah> produk['stok']:
+        if jumlah > produk['stok']:
             print("Stok tidak cukup!")
             input("Klik enter")
             continue
@@ -529,7 +532,7 @@ def beli_produk(username):
         })
 
         #tampilkan pesan
-        print(f"\n {produk['nama']} x {jumlah} ditambahkan ke keranjang!")
+        print(f"\n>> {produk['nama']} x {jumlah} ditambahkan ke keranjang!")
 
         #tanya mau beli lagi
         #jika jawaban bukan 'y' maka keluar dari pengisian keranjang
@@ -545,14 +548,19 @@ def beli_produk(username):
         
         #tampilkan isi keranjang
         os.system('cls')
-    print("==== ISI KERANJANG ====")
+    print("======================================")
+    print("=============ISI KERANJANG============")
+    print("====================================\n")
     for item in keranjang:
         print(f" - {item['nama']} x {item['jumlah']} = Rp{item['subtotal']}")
         #menunjukkan tiap item dan subtotalnya
 
     #hitung total yang harus dibayar
     total_bayar = sum(item['subtotal'] for item in keranjang)
+    print("\n------------------------------------")
     print(f"TOTAL BAYAR = RP{total_bayar}")
+    print("------------------------------------\n")
+
 
     #konfirmasi pembayaran 
     #jika bukan 'y' maka batalkan transaksi (tidak mengubah stok, tidak menulis sales)
@@ -580,15 +588,18 @@ def beli_produk(username):
         writer = csv.writer(f)
         for item in keranjang:
             writer.writerow([tanggal, username, item["nama"], item["jumlah"]])
-            #
 
     #output berhasl
-    print("\n=== TRANSAKSI BERHASIL ===")
+    os.system('cls')
+    print("========================================")
+    print("\n========= TRANSAKSI BERHASIL =========")
+    print("======================================\n")
     print(f"Tanggal : {tanggal}")
     print(f"Total   : Rp{total_bayar}")
     print(f"Detail pembelian:")
     for item in keranjang:
         print(f"- {item['nama']} x {item['jumlah']}")
+    print("\n====================================\n")
     input("klik enter untuk kembali ke menu")
 
 # Simple menu helper untuk kelola produk (dipanggil dari menu utama)
