@@ -38,7 +38,7 @@ def login():
     #cek pw
     if password_benar.empty: 
         print("\n Password salah! Silahkan coba lagi.")
-        return username #jika pw salah mka kembali ke menu
+        return None #jika pw salah mka kembali ke menu
 
     # jika usn dan pw benar cek role maka login berhasil
     role = password_benar.iloc[0]["role"]
