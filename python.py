@@ -582,16 +582,12 @@ def beli_produk(username):
     with open(SALES_FILE, "a", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
         for item in keranjang:
-<<<<<<< HEAD
-            writer.writerow([tanggal, username, item["nama"], item["jumlah"]])
-=======
             writer.writerow([tanggal, username, item["nama"], item["jumlah"], item["harga"], item["subtotal"]])
             #
             if jumlah <= 0:
                 print("Jumlah tidak boleh 0!")
                 input("Enter")
                 continue
->>>>>>> d220e5ea5ad410e8d6b8b0fe79b0643c63cb8265
 
     print("================================")
     print("====== TRANSAKSI BERHASIL ======")
