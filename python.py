@@ -130,11 +130,13 @@ def kelola_akun(username):
 
         if pilih == "1":
             username = ubah_username(username)
+            return username
         elif pilih == "2":
-            ubah_password(username)
+            username = ubah_password(username)
+            return username
         elif pilih == "3":
             print("Kembali ke menu sebelumnya")
-            return
+            return username
         else:
             print("Pilihan tidak valid! silahkan tekan menu 1-3")
         
@@ -179,7 +181,7 @@ def ubah_password(username):
     if akun.empty:
         print("Password lama salah ")
         input("Tekan enter untuk kembali...")
-        return
+        return username
     
     password_baru = input("Masukkan password baru: " )
     while not password_baru.strip():
@@ -190,6 +192,8 @@ def ubah_password(username):
     data_akun.to_csv("users.csv", index=False)
 
     print("Password berhasil diubah!")
+    input("Enter untuk melanjutkan")
+    return username 
 
 # =========================
 #  MENU ADMIN
@@ -475,121 +479,126 @@ def beli_produk(username):
 
         print("==== BELI PRODUK ====")
         print(F"Login sebagai : {username}")
-        print(tabulate.tabulate(data, headers="keys", tablefmt="fancy_grid"))
-        #menampilkan tabel rapi pakai tabulate agara pembeli tau indeks, nama, dtok dan harga
+        
+        # tampilkan tabel produk dengan index mulai dari 1
+        display_df = data.copy()
+        display_df.index = range(1, len(display_df) + 1)
+        print(tabulate.tabulate(display_df, headers="keys", tablefmt="fancy_grid"))
 
-        try: # jika bukan angka maka akan error dan tampil pesan  
-            indeks = int(input("\nMasukkan Indeks produk yang ingin dibeli : "))
+        # input nomor produk (1-based)
+        try:
+            indeks_user = int(input("\nMasukkan nomor produk (mulai dari 1): "))
         except ValueError:
             print("Input harus angka!")
-            input("Klik enter") 
-            continue #continue (ulang dari awal loop)
-
-        #indeks < 0 artinya penggunaa memasukkan angka negatif maka tidak mungkin menjadi baris tabel
-        #inndeks >= len(data) jika jumlah prduk misal 3 maka len data 3, indeks valid nya yaitu 0,1,2
-        if indeks < 0 or indeks >= len(data):
-            print("indeks tidak valid!")
             input("Klik enter")
             continue
 
-        #ambil baris produk yaitu nam, stok, harga
-        produk = data.loc[indeks]
+        # validasi rentang produk
+        if indeks_user < 1 or indeks_user > len(data):
+            print("Nomor produk tidak valid!")
+            input("Klik enter")
+            continue
 
-        #detail produk
-        print("==== DETAIL PRODUK ====")
+        # konversi ke index 0-based untuk DataFrame
+        idx = indeks_user - 1
+        produk = data.iloc[idx]
+
+        # tampilkan detail produk
+        print("================================")
+        print("========= DETAIL PRODUK ========")
+        print("================================")
         print(f"Nama    : {produk['nama']}")
         print(f"Stok    : {produk['stok']}")
         print(f"Harga   : {produk['harga']}")
 
-        try: # input harus angka jika tidak maka akan eror
+        # input jumlah
+        try:
             jumlah = int(input("Masukkan jumlah pembelian: "))
         except ValueError:
-            print("Jumlah harus angka")
-            input("klik enter")
+            print("Jumlah harus angka!")
+            input("Klik enter...")
             continue
 
-        #cek stok cukup atau tidak, jika jumlahnya melebihi stok maka 
-        #beripesan dan kembali ke pilih produk (loop continue)
-        if jumlah> produk['stok']:
+        # validasi jumlah minimal 1
+        if jumlah <= 0:
+            print("Jumlah pembelian minimal 1! Tidak boleh 0!")
+            input("Klik enter...")
+            continue
+
+        # validasi stok
+        if jumlah > produk['stok']:
             print("Stok tidak cukup!")
-            input("Klik enter")
+            input("Klik enter...")
             continue
 
-        #hitunng sub total
+        # hitung subtotal
         subtotal = jumlah * produk['harga']
 
-        #masukkan ke keranjang
-        #simpan indeks untuk (mengurangi stok) nama, jumlah dan harga perunit subtotal
+        # masukkan ke keranjang (JUMLAH SUDAH VALID)
         keranjang.append({
-            "index": indeks,
+            "index": idx,              # index internal (0-based)
             "nama": produk["nama"],
             "jumlah": jumlah,
             "harga": produk["harga"],
             "subtotal": subtotal
         })
 
-        #tampilkan pesan
         print(f"\n{produk['nama']} x {jumlah} ditambahkan ke keranjang!")
 
-        #tanya mau beli lagi
-        #jika jawaban bukan 'y' maka keluar dari pengisian keranjang
+        # lanjut beli atau tidak
         lanjut = input("Mau beli produk lain? (y/n): ").lower()
         if lanjut != "y":
             break
 
-        #jika keranjang kosong, batalkan dan kembali ke menu
-        if not keranjang:
-            print("Keranjang kosong, tidak ada pembelian")
-            input("enter")
-            return
-        
-        #tampilkan isi keranjang
-        os.system('cls')
-    print("\n==== ISI KERANJANG ====")
-    for item in keranjang:
-        print(f" - {item['nama']} x {item['jumlah']} = Rp{item['subtotal']}")
-        #menunjukkan tiap item dan subtotalnya
-
-    #hitung total yang harus dibayar
-    total_bayar = sum(item['subtotal'] for item in keranjang)
-    print(f"TOTAL BAYAR = Rp{total_bayar}")
-
-    #konfirmasi pembayaran 
-    #jika bukan 'y' maka batalkan transaksi (tidak mengubah stok, tidak menulis sales)
-    konfirmasi = input("Lanjutkan pembayaran? (y/n): ").lower()
-    if konfirmasi != "y":
-        print("Pembelian dibatalkan")
+    # jika keranjang kosong
+    if not keranjang:
+        print("Keranjang kosong, tidak ada pembelian.")
         input("Enter")
         return
-    
-    #Proses kurangi stok
-    #untuk setiap item di keranjang, stok baris dengan indeks dikurangi jumlah yang dibeli
-    #stelah semua perubahan, tulis kembali seluruh dataframe data ke produk
+
+    # tampilkan ringkasan keranjang
+    os.system('cls')
+    print("===============================")
+    print("\n======= ISI KERANJANG =======")
+    print("===============================")
     for item in keranjang:
-        data.loc[item["index"], "stok"] -= item["jumlah"]
+        print(f" - {item['nama']} x {item['jumlah']} = Rp{item['subtotal']}")
+
+    total_bayar = sum(item['subtotal'] for item in keranjang)
+    print(f"\nTOTAL BAYAR = Rp{total_bayar}")
+
+    konfirmasi = input("Lanjutkan pembayaran? (y/n): ").lower()
+    if konfirmasi != "y":
+        print("Pembelian dibatalkan.")
+        input("Enter...")
+        return
+
+    # kurangi stok di CSV sesuai index produk
+    for item in keranjang:
+        data.loc[data.index[item["index"]], "stok"] -= item["jumlah"]
+
     data.to_csv(PRODUCT_FILE, index=False)
 
-    #catat transaksi
-    #buat timestamp sekarang 
-    #buka sales csv dalam mode append untuk setiap item tulis baris baru
-    #tanggal, usn, nama produk dan jumlah
+    # catat transaksi ke sales.csv
     from datetime import datetime
     tanggal = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-    with open (SALES_FILE, "a", newline="") as f:
+    with open(SALES_FILE, "a", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
         for item in keranjang:
             writer.writerow([tanggal, username, item["nama"], item["jumlah"]])
-            #
 
-    #output berhasl
-    print("\n=== TRANSAKSI BERHASIL ===")
+    print("================================")
+    print("====== TRANSAKSI BERHASIL ======")
+    print("================================")
     print(f"Tanggal : {tanggal}")
     print(f"Total   : Rp{total_bayar}")
-    print(f"Detail pembelian:")
+    print("Detail pembelian:")
     for item in keranjang:
         print(f"- {item['nama']} x {item['jumlah']}")
-    input("\nKlik enter untuk kembali ke menu...")
+
+    input("\nKlik enter untuk kembali ke menu")
+
 
 # Simple menu helper untuk kelola produk (dipanggil dari menu utama)
 def menu_kelola_produk():
@@ -619,6 +628,8 @@ def menu_kelola_produk():
         else:
             print("Pilihan tidak dikenal. Coba lagi.")
             input("Tekan Enter...")
+
+    
 
 # Pastikan file siap jika modul ini dijalankan langsung
 if __name__ == "__main__":
@@ -656,9 +667,35 @@ def menu_pembeli(username):
             username = kelola_akun(username)
         elif pil == "4":
             os.system('cls')
-            lihat_produk()
+            cari_produk()
         elif pil == "0":
             break
+
+
+
+#searching
+def cari_produk():
+        os.system("cls")
+
+        print("===== CARI PRODUK =====")
+
+        df = pd.read_csv(PRODUCT_FILE)
+
+        keyword = input("Masukkan kata pencarian: ").lower()
+
+        # Filter produk yang mengandung keyword (case-insensitive)
+        hasil = df[df['nama'].str.lower().str.contains(keyword)]
+
+        if hasil.empty:
+            print("\n Produk tidak ditemukan!")
+            input("Enter...")
+            return None  # tidak menemukan produk
+
+        print("\n=== HASIL PENCARIAN ===")
+        print(tabulate.tabulate(hasil, headers="keys", tablefmt="grid"))
+        print()
+
+        return hasil  # dikembalikan ke menu pembelian
 
 # =========================
 #  LAPORAN PEMBELI
