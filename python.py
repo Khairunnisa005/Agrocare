@@ -222,11 +222,13 @@ def menu_admin(username): #fungsi menu admin, tampil saat masuk sebagai admin
 #  PENGELOLAAN PRODUK
 # =========================
 def ensure_product_file():
+    os.system('cls')
     if not os.path.exists(PRODUCT_FILE):
         df = pd.DataFrame(columns=["nama", "stok", "harga", "unit"])
         df.to_csv(PRODUCT_FILE, index=False)
 
 def load_products() -> pd.DataFrame:
+    os.system('cls')
     # Baca produk dari CSV jadi DataFrame. Jika corrupt, bikin pesan dan kembalikan empty DF.
     ensure_product_file()
     try:
@@ -247,6 +249,7 @@ def load_products() -> pd.DataFrame:
         return pd.DataFrame(columns=["nama","stok","harga","unit"])
 
 def save_products(df: pd.DataFrame):
+    os.system('cls')
     # Simpan DataFrame produk ke CSV. Tangani exception.
     try:
         df.to_csv(PRODUCT_FILE, index=False)
@@ -254,6 +257,7 @@ def save_products(df: pd.DataFrame):
         print("Gagal menyimpan data produk:", str(e))
 
 def print_products(df: pd.DataFrame):
+    os.system('cls')
     # Cetak tabel produk dengan index mulai 1.    
     if df.empty:
         print("Belum ada produk.")
@@ -263,6 +267,7 @@ def print_products(df: pd.DataFrame):
     print(tabulate.tabulate(display_df, headers='keys', tablefmt='fancy_grid'))
 
 def tambah_produk():
+    os.system('cls')
     # Tambah produk baru dengan validasi. Menyimpan langsung ke CSV.
     df = load_products()
     print("\n=== TAMBAH PRODUK ===")
@@ -307,6 +312,7 @@ def tambah_produk():
     print(f"Produk '{nama}' berhasil ditambahkan.")
 
 def edit_produk():
+    os.system('cls')
     # Edit produk berdasarkan index (user-friendly 1..n) atau cari nama. Menyimpan perubahan ke CSV.
     df = load_products()
     if df.empty:
@@ -396,6 +402,7 @@ def edit_produk():
     print("Produk berhasil diperbarui.")
 
 def hapus_produk():
+    os.system('cls')
     # Hapus produk berdasarkan index. Ada konfirmasi.
     df = load_products()
     if df.empty:
@@ -424,28 +431,17 @@ def hapus_produk():
     print(f"Produk '{nama}' berhasil dihapus.")
 
 def lihat_produk():
+    os.system('cls')
     # Tampilkan daftar produk tanpa memodifikasi apa pun.
     df = load_products()
     print("\n=== DAFTAR PRODUK ===")
     print_products(df)
-
-    try:
-        data = pd.read_csv("products.csv")
-    except:
-        print("File products.csv tidak ditemukan!")
-        input("\nKlik Enter untuk kembali...")
-        return
-
+    data = pd.read_csv("products.csv")
     # Jika produk kosong
     if data.empty:
         print("Belum ada produk yang tersedia.")
         input("\nKlik Enter untuk kembali...")
         return
-
-    # Tampilkan semua produk
-    print("\n--- List Produk ---")
-    print(data[["nama", "harga", "stok"]])
-
     print("\n===========================================")
     cari = input("Masukkan nama produk yang ingin dicari : ").strip().lower()
 
@@ -461,6 +457,7 @@ def lihat_produk():
         print(f"Stok  : {hasil.iloc[0]['stok']}")
 
     input("\nKlik Enter untuk kembali...")
+    menu_kelola_produk()
 
 #pembelian
 def beli_produk(username):
@@ -603,19 +600,24 @@ def menu_kelola_produk():
         print("0. Kembali")
         pilih = input("Pilih menu: ").strip()
         if pilih == "1": #jika memilih menu lihat(1) maka akan menjalankan fungsi lihat produk
+            os.system('cls')
             lihat_produk()
             input("Tekan Enter untuk kembali...")
         elif pilih == "2": #jika memilih menu tambah(2) maka akan menjalankan fungsi tambah produk
+            os.system('cls')
             tambah_produk()
             input("Tekan Enter untuk kembali...")
         elif pilih == "3": #jika memilih menu edit(3) maka akan menjalankan fungsi edit produk
+            os.system('cls')
             edit_produk()
             input("Tekan Enter untuk kembali...")
         elif pilih == "4": #jika memilih menu hapus(4) maka akan menjalankan fungsi hapus produk
+            os.system('cls')
             hapus_produk()
             input("Tekan Enter untuk kembali...")
         elif pilih == "0": #pilihan menu untuk kembali ke menu sebelumnya
-            break
+            os.system('cls')
+            menu()
         else:
             print("Pilihan tidak dikenal. Coba lagi.")
             input("Tekan Enter...")
@@ -699,7 +701,10 @@ def laporan_admin():
         if pillihan == "1":
             #menentukan batas tanggal dari data yang ingin dikluarkan 
             start_date = end_date - timedelta(days=1)
-            filtered = penjualan[end_date]
+            filtered = penjualan[
+                (penjualan['tanggal'] >= start_date) & 
+                (penjualan['tanggal'] < end_date) 
+            ]
             print(tabulate.tabulate(filtered, headers='keys', tablefmt='fancy_grid'))
             input("klik enter untuk lanjut.......")
             laporan_admin()
