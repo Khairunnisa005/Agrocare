@@ -230,7 +230,7 @@ def load_products() -> pd.DataFrame:
     # Baca produk dari CSV jadi DataFrame. Jika corrupt, bikin pesan dan kembalikan empty DF.
     ensure_product_file()
     try:
-        df = pd.read_csv(PRODUCT_FILE)
+        df = pd.read_csv(PRODUCT_FILE) 
         # pastikan kolom penting ada
         for col in ["nama", "stok", "harga", "unit"]:
             if col not in df.columns:
@@ -666,11 +666,27 @@ def menu_pembeli(username):
 def laporan_pembeli(username): #fungsi laporan pembeli
     os.system('cls')
     print("\n=== LAPORAN PEMBELIAN ANDA ===")
-    with open(SALES_FILE, "r", encoding="utf-8") as f: #membuka file csv dan membacanya, lalu disimpen dalam var. f
-        reader = csv.DictReader(f) #membaca file csv
-        for row in reader: #perulangan setiap baris dalam file csv
+    rows = []
+    with open(SALES_FILE, "r", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
             if row["pembeli"] == username:
-                print(f"{row['tanggal']} | {row['produk']} | {row['jumlah']} | {row['total']}") #tampilan laporan
+                rows.append([
+                    row["tanggal"],
+                    row["produk"],
+                    row["jumlah"],
+                    row["harga"]
+                ])
+
+    if not rows:
+        print("Belum ada transaksi.")
+        return
+
+    print(tabulate.tabulate(
+        rows,
+        headers=["Tanggal", "Produk", "Jumlah", "Harga"],
+        tablefmt="fancy_grid"
+    ))
 
 #==============
 #== Shorting ==
