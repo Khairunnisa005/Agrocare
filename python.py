@@ -199,11 +199,11 @@ def ubah_password(username):
 #  MENU ADMIN
 # =========================
 def menu_admin(username): #fungsi menu admin, tampil saat masuk sebagai admin
-    os.system('cls')
     if not username:
         print("Error: username kosong. Kembali ke menu utama.")
         return
     while True: #kemudian menampilkan perulangan menu yang dimiliki admin
+        os.system('cls')
         print("\n=== MENU ADMIN ===")
         print("1. Kelola Produk")
         print("2. Laporan Penjualan")
@@ -221,6 +221,9 @@ def menu_admin(username): #fungsi menu admin, tampil saat masuk sebagai admin
         elif pillihan == "0": #pilihan untuk keluar dari akun
             os.system('cls')
             break
+        else:
+            print("Pilihan tidak dikenal. Coba yang bener, ya.")
+            input("Enter...")
 
 # =========================
 #  PENGELOLAAN PRODUK
@@ -234,7 +237,7 @@ def load_products() -> pd.DataFrame:
     # Baca produk dari CSV jadi DataFrame. Jika corrupt, bikin pesan dan kembalikan empty DF.
     ensure_product_file()
     try:
-        df = pd.read_csv(PRODUCT_FILE)
+        df = pd.read_csv(PRODUCT_FILE) 
         # pastikan kolom penting ada
         for col in ["nama", "stok", "harga", "unit"]:
             if col not in df.columns:
@@ -267,6 +270,7 @@ def print_products(df: pd.DataFrame):
     print(tabulate.tabulate(display_df, headers='keys', tablefmt='fancy_grid'))
 
 def tambah_produk():
+    os.system('cls')
     # Tambah produk baru dengan validasi. Menyimpan langsung ke CSV.
     df = load_products()
     print("\n=== TAMBAH PRODUK ===")
@@ -311,6 +315,7 @@ def tambah_produk():
     print(f"Produk '{nama}' berhasil ditambahkan.")
 
 def edit_produk():
+    os.system('cls')
     # Edit produk berdasarkan index (user-friendly 1..n) atau cari nama. Menyimpan perubahan ke CSV.
     df = load_products()
     if df.empty:
@@ -400,6 +405,7 @@ def edit_produk():
     print("Produk berhasil diperbarui.")
 
 def hapus_produk():
+    os.system('cls')
     # Hapus produk berdasarkan index. Ada konfirmasi.
     df = load_products()
     if df.empty:
@@ -428,28 +434,17 @@ def hapus_produk():
     print(f"Produk '{nama}' berhasil dihapus.")
 
 def lihat_produk():
+    os.system('cls')
     # Tampilkan daftar produk tanpa memodifikasi apa pun.
     df = load_products()
     print("\n=== DAFTAR PRODUK ===")
     print_products(df)
-
-    try:
-        data = pd.read_csv("products.csv")
-    except:
-        print("File products.csv tidak ditemukan!")
-        input("\nKlik Enter untuk kembali...")
-        return
-
+    data = pd.read_csv("products.csv")
     # Jika produk kosong
     if data.empty:
         print("Belum ada produk yang tersedia.")
         input("\nKlik Enter untuk kembali...")
         return
-
-    # Tampilkan semua produk
-    print("\n--- List Produk ---")
-    print(data[["nama", "harga", "stok"]])
-
     print("\n===========================================")
     cari = input("Masukkan nama produk yang ingin dicari : ").strip().lower()
 
@@ -465,6 +460,7 @@ def lihat_produk():
         print(f"Stok  : {hasil.iloc[0]['stok']}")
 
     input("\nKlik Enter untuk kembali...")
+    menu_kelola_produk()
 
 #pembelian
 def beli_produk(username):
@@ -586,7 +582,16 @@ def beli_produk(username):
     with open(SALES_FILE, "a", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
         for item in keranjang:
+<<<<<<< HEAD
             writer.writerow([tanggal, username, item["nama"], item["jumlah"]])
+=======
+            writer.writerow([tanggal, username, item["nama"], item["jumlah"], item["harga"], item["subtotal"]])
+            #
+            if jumlah <= 0:
+                print("Jumlah tidak boleh 0!")
+                input("Enter")
+                continue
+>>>>>>> d220e5ea5ad410e8d6b8b0fe79b0643c63cb8265
 
     print("================================")
     print("====== TRANSAKSI BERHASIL ======")
@@ -612,19 +617,24 @@ def menu_kelola_produk():
         print("0. Kembali")
         pilih = input("Pilih menu: ").strip()
         if pilih == "1": #jika memilih menu lihat(1) maka akan menjalankan fungsi lihat produk
+            os.system('cls')
             lihat_produk()
             input("Tekan Enter untuk kembali...")
         elif pilih == "2": #jika memilih menu tambah(2) maka akan menjalankan fungsi tambah produk
+            os.system('cls')
             tambah_produk()
             input("Tekan Enter untuk kembali...")
         elif pilih == "3": #jika memilih menu edit(3) maka akan menjalankan fungsi edit produk
+            os.system('cls')
             edit_produk()
             input("Tekan Enter untuk kembali...")
         elif pilih == "4": #jika memilih menu hapus(4) maka akan menjalankan fungsi hapus produk
+            os.system('cls')
             hapus_produk()
             input("Tekan Enter untuk kembali...")
         elif pilih == "0": #pilihan menu untuk kembali ke menu sebelumnya
-            break
+            os.system('cls')
+            menu()
         else:
             print("Pilihan tidak dikenal. Coba lagi.")
             input("Tekan Enter...")
@@ -639,8 +649,6 @@ if __name__ == "__main__":
 # =========================
 #  MENU PEMBELI
 # =========================
-# beli_produk = ""
-
 def menu_pembeli(username):
     os.system('cls')
     if not username:
@@ -670,6 +678,9 @@ def menu_pembeli(username):
             cari_produk()
         elif pil == "0":
             break
+        else:
+            print("Pilihan tidak dikenal. Coba yang bener, ya.")
+            input("Enter...")
 
 
 
@@ -700,69 +711,163 @@ def cari_produk():
 # =========================
 #  LAPORAN PEMBELI
 # =========================
-def laporan_pembeli(username): #fungsi laporan pembeli
+def laporan_pembeli(username):
     os.system('cls')
-    print("\n=== LAPORAN PEMBELIAN ANDA ===")
-    with open(SALES_FILE, "r", encoding="utf-8") as f: #membuka file csv dan membacanya, lalu disimpen dalam var. f
-        reader = csv.DictReader(f) #membaca file csv
-        for row in reader: #perulangan setiap baris dalam file csv
-            if row["pembeli"] == username:
-                print(f"{row['tanggal']} | {row['produk']} | {row['jumlah']} | {row['total']}") #tampilan laporan
+    print("=== LAPORAN PEMBELIAN ANDA ===")
+
+    if not os.path.exists(SALES_FILE):
+        print("Belum ada transaksi.")
+        return
+
+    # Baca CSV
+    with open(SALES_FILE, "r", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+
+        transaksi_map = {}  # key = tanggal, value = list item
+
+        for row in reader:
+            if row["pembeli"] != username:
+                continue
+
+            tgl = row["tanggal"]
+
+            if tgl not in transaksi_map:
+                transaksi_map[tgl] = []
+
+            transaksi_map[tgl].append({
+                "produk": row["produk"],
+                "jumlah": row["jumlah"],
+                "harga": row["harga"],
+                "total": row["total"]
+            })
+
+    if not transaksi_map:
+        print("Belum ada transaksi.")
+        return
+
+    # Buat tabel gabungan
+    tabel = []
+
+    for tanggal, items in transaksi_map.items():
+        # gabungkan produk jadi multiline cell
+        produk_cell = ""
+        total_semua = 0
+
+        for item in items:
+            produk_cell += f"{item['produk']} ({item['jumlah']}) - {item['total']}\n"
+            try:
+                total_semua += float(item["total"])
+            except:
+                pass
+
+        produk_cell = produk_cell.strip()  # hapus newline akhir
+
+        tabel.append([tanggal, produk_cell, total_semua])
+
+    print(tabulate.tabulate(
+        tabel,
+        headers=["Tanggal", "Produk", "Total Harga"],
+        tablefmt="fancy_grid"
+    ))
 
 #==============
-#== Shorting ==
+#== Sorting ==
 #==============
 def laporan_admin():
-    os.system('cls')
-    #untuk membaca data jual beli
-    penjualan = pd.read_csv('sales.csv')
-    # program ini untuk merubah kolom 'tanggal' menjadi datetime
-    penjualan['tanggal'] = pd.to_datetime(penjualan['tanggal'])
+    os.system("cls")
+    print("=== LAPORAN PENJUALAN (ADMIN) ===")
 
-    # Cari nilai maksimum (tanggal terbaru) di kolom 'tanggal'
-    tanggal_terakhir_data = penjualan['tanggal'].dt.normalize().max()
+    if not os.path.exists(SALES_FILE):
+        print("Belum ada data penjualan.")
+        input("Enter...")
+        return
 
-    # Tentukan batas akhir satu hari setelah tanggal terakhir di data.
-    end_date = tanggal_terakhir_data + timedelta(days=1)
+    df = pd.read_csv(SALES_FILE)
+
+    # pastikan harga & total angka
+    df["harga"] = pd.to_numeric(df["harga"], errors="coerce")
+    df["total"] = pd.to_numeric(df["total"], errors="coerce")
+
+    # tanggal ke datetime
+    df["tanggal"] = pd.to_datetime(df["tanggal"])
+
+    # sorting berdasarkan waktu (baru → lama)
+    df = df.sort_values("tanggal", ascending=False)
+
+    # tanggal terakhir utk acuan filter
+    last_date = df["tanggal"].max().normalize()
+    end_date = last_date + timedelta(days=1)
 
     while True:
-        print("== Pilih waktu nya ==")
-        print("1. Data hari ini")
-        print("2. Data 1 Minggu ")
-        print("3. Data 1 Bulan")
-        print("4. Keluar ")
-        pillihan = input("Masukkan perintah berupa angka 1/2/3/4: ")
+        os.system("cls")
+        print("=== PILIH FILTER WAKTU ===")
+        print("1. Hari ini")
+        print("2. 1 Minggu")
+        print("3. 1 Bulan")
+        print("4. Kembali")
+        pilih = input("Masukkan pilihan: ")
 
-        if pillihan == "1":
-            #menentukan batas tanggal dari data yang ingin dikluarkan 
+        if pilih == "1":
             start_date = end_date - timedelta(days=1)
-            filtered = penjualan[end_date]
-            print(tabulate.tabulate(filtered, headers='keys', tablefmt='fancy_grid'))
-            input("klik enter untuk lanjut.......")
-            laporan_admin()
-        elif pillihan == "2":
+        elif pilih == "2":
             start_date = end_date - timedelta(days=7)
-            filtered = penjualan[
-                (penjualan['tanggal'] >= start_date) & 
-                (penjualan['tanggal'] < end_date) 
-            ]
-            print(tabulate.tabulate(filtered, headers='keys', tablefmt='fancy_grid'))
-            input("klik enter untuk lanjut.......")
-            laporan_admin()
-        elif pillihan == "3":
+        elif pilih == "3":
             start_date = end_date - timedelta(days=30)
-            filtered = penjualan[
-                (penjualan['tanggal'] >= start_date) & 
-                (penjualan['tanggal'] < end_date) 
-            ]
-            print(tabulate.tabulate(filtered, headers='keys', tablefmt='fancy_grid'))
-            input("klik enter untuk lanjut.......")
-            laporan_admin()
-        elif pillihan =="4":
-            input("klik enter untuk lanjut.......")
-            menu_admin(["username"])
-        else :
-            print("input ayang anda masukkan salah")
+        elif pilih == "4":
+            return
+        else:
+            print("Pilihan tidak valid.")
+            input("Enter...")
+            continue
+
+        # FILTER
+        filtered = df[(df["tanggal"] >= start_date) & (df["tanggal"] < end_date)]
+
+        if filtered.empty:
+            print("Tidak ada transaksi di rentang ini.")
+            input("Enter...")
+            continue
+
+        # PROSES KE TABEL SATUAN
+        transaksi_map = {}
+
+        for _, row in filtered.iterrows():
+            tgl = row["tanggal"].strftime("%Y-%m-%d %H:%M:%S")
+
+            if tgl not in transaksi_map:
+                transaksi_map[tgl] = {
+                    "pembeli": row["pembeli"],
+                    "items": [],
+                    "total_all": 0
+                }
+
+            item_str = f"{row['produk']} ({int(row['jumlah'])}) - Rp{row['total']}"
+            transaksi_map[tgl]["items"].append(item_str)
+
+            try:
+                transaksi_map[tgl]["total_all"] += float(row["total"])
+            except:
+                pass
+
+        # Bikin tabel final
+        tabel = []
+
+        for tgl, dat in transaksi_map.items():
+            produk_cell = "\n".join(dat["items"])
+            tabel.append([
+                tgl,
+                dat["pembeli"],
+                produk_cell,
+                dat["total_all"]
+            ])
+
+        print("\n" + tabulate.tabulate(
+            tabel,
+            headers=["Tanggal", "Pembeli", "Produk", "Total Transaksi"],
+            tablefmt="fancy_grid"
+        ))
+
+        input("\nEnter untuk lanjut...")
 
 # =========================
 #  MENU UTAMA

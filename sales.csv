@@ -1,4 +1,5 @@
 tanggal,pembeli,produk,jumlah,harga,total
+<<<<<<< HEAD
 2025-11-21 11:32:39,ness,Beras,1,1000000.0
 2025-11-21 11:35:12,apaya,Kapal laut,2,34000.0
 2025-11-22 02:08:20,apaya,Padi,2,20.0
@@ -24,3 +25,8 @@ tanggal,pembeli,produk,jumlah,harga,total
 2025-11-25 18:14:39,acaa,Kuda,3
 2025-11-25 18:16:48,acaa,Sotong,2
 2025-11-25 18:16:48,acaa,Buaya putih,7
+=======
+2025-11-25 22:41:37,acaa,Pupuk MPK,9,8000.0,72000.0
+2025-11-25 22:41:37,acaa,Pupuk MPK,10,8000.0,80000.0
+2025-11-25 22:41:54,acaa,Pupuk Perangsang Bunga,90,10000.0,900000.0
+>>>>>>> d220e5ea5ad410e8d6b8b0fe79b0643c63cb8265
