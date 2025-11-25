@@ -195,11 +195,11 @@ def ubah_password(username):
 #  MENU ADMIN
 # =========================
 def menu_admin(username): #fungsi menu admin, tampil saat masuk sebagai admin
-    os.system('cls')
     if not username:
         print("Error: username kosong. Kembali ke menu utama.")
         return
     while True: #kemudian menampilkan perulangan menu yang dimiliki admin
+        os.system('cls')
         print("\n=== MENU ADMIN ===")
         print("1. Kelola Produk")
         print("2. Laporan Penjualan")
@@ -217,18 +217,19 @@ def menu_admin(username): #fungsi menu admin, tampil saat masuk sebagai admin
         elif pillihan == "0": #pilihan untuk keluar dari akun
             os.system('cls')
             break
+        else:
+            print("Pilihan tidak dikenal. Coba yang bener, ya.")
+            input("Enter...")
 
 # =========================
 #  PENGELOLAAN PRODUK
 # =========================
 def ensure_product_file():
-    os.system('cls')
     if not os.path.exists(PRODUCT_FILE):
         df = pd.DataFrame(columns=["nama", "stok", "harga", "unit"])
         df.to_csv(PRODUCT_FILE, index=False)
 
 def load_products() -> pd.DataFrame:
-    os.system('cls')
     # Baca produk dari CSV jadi DataFrame. Jika corrupt, bikin pesan dan kembalikan empty DF.
     ensure_product_file()
     try:
@@ -249,7 +250,6 @@ def load_products() -> pd.DataFrame:
         return pd.DataFrame(columns=["nama","stok","harga","unit"])
 
 def save_products(df: pd.DataFrame):
-    os.system('cls')
     # Simpan DataFrame produk ke CSV. Tangani exception.
     try:
         df.to_csv(PRODUCT_FILE, index=False)
@@ -257,7 +257,6 @@ def save_products(df: pd.DataFrame):
         print("Gagal menyimpan data produk:", str(e))
 
 def print_products(df: pd.DataFrame):
-    os.system('cls')
     # Cetak tabel produk dengan index mulai 1.    
     if df.empty:
         print("Belum ada produk.")
@@ -576,8 +575,12 @@ def beli_produk(username):
     with open (SALES_FILE, "a", newline="") as f:
         writer = csv.writer(f)
         for item in keranjang:
-            writer.writerow([tanggal, username, item["nama"], item["jumlah"]])
+            writer.writerow([tanggal, username, item["nama"], item["jumlah"], item["harga"], item["subtotal"]])
             #
+            if jumlah <= 0:
+                print("Jumlah tidak boleh 0!")
+                input("Enter")
+                continue
 
     #output berhasl
     print("\n=== TRANSAKSI BERHASIL ===")
@@ -630,8 +633,6 @@ if __name__ == "__main__":
 # =========================
 #  MENU PEMBELI
 # =========================
-# beli_produk = ""
-
 def menu_pembeli(username):
     os.system('cls')
     if not username:
@@ -661,92 +662,170 @@ def menu_pembeli(username):
             lihat_produk()
         elif pil == "0":
             break
+        else:
+            print("Pilihan tidak dikenal. Coba yang bener, ya.")
+            input("Enter...")
 
 # =========================
 #  LAPORAN PEMBELI
 # =========================
-def laporan_pembeli(username): #fungsi laporan pembeli
+def laporan_pembeli(username):
     os.system('cls')
-    print("\n=== LAPORAN PEMBELIAN ANDA ===")
-    rows = []
-    with open(SALES_FILE, "r", encoding="utf-8") as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            if row["pembeli"] == username:
-                rows.append([
-                    row["tanggal"],
-                    row["produk"],
-                    row["jumlah"],
-                    row["harga"]
-                ])
+    print("=== LAPORAN PEMBELIAN ANDA ===")
 
-    if not rows:
+    if not os.path.exists(SALES_FILE):
         print("Belum ada transaksi.")
         return
 
+    # Baca CSV
+    with open(SALES_FILE, "r", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+
+        transaksi_map = {}  # key = tanggal, value = list item
+
+        for row in reader:
+            if row["pembeli"] != username:
+                continue
+
+            tgl = row["tanggal"]
+
+            if tgl not in transaksi_map:
+                transaksi_map[tgl] = []
+
+            transaksi_map[tgl].append({
+                "produk": row["produk"],
+                "jumlah": row["jumlah"],
+                "harga": row["harga"],
+                "total": row["total"]
+            })
+
+    if not transaksi_map:
+        print("Belum ada transaksi.")
+        return
+
+    # Buat tabel gabungan
+    tabel = []
+
+    for tanggal, items in transaksi_map.items():
+        # gabungkan produk jadi multiline cell
+        produk_cell = ""
+        total_semua = 0
+
+        for item in items:
+            produk_cell += f"{item['produk']} ({item['jumlah']}) - {item['total']}\n"
+            try:
+                total_semua += float(item["total"])
+            except:
+                pass
+
+        produk_cell = produk_cell.strip()  # hapus newline akhir
+
+        tabel.append([tanggal, produk_cell, total_semua])
+
     print(tabulate.tabulate(
-        rows,
-        headers=["Tanggal", "Produk", "Jumlah", "Harga"],
+        tabel,
+        headers=["Tanggal", "Produk", "Total Harga"],
         tablefmt="fancy_grid"
     ))
 
 #==============
-#== Shorting ==
+#== Sorting ==
 #==============
 def laporan_admin():
-    os.system('cls')
-    #untuk membaca data jual beli
-    penjualan = pd.read_csv('sales.csv')
-    # program ini untuk merubah kolom 'tanggal' menjadi datetime
-    penjualan['tanggal'] = pd.to_datetime(penjualan['tanggal'])
+    os.system("cls")
+    print("=== LAPORAN PENJUALAN (ADMIN) ===")
 
-    # Cari nilai maksimum (tanggal terbaru) di kolom 'tanggal'
-    tanggal_terakhir_data = penjualan['tanggal'].dt.normalize().max()
+    if not os.path.exists(SALES_FILE):
+        print("Belum ada data penjualan.")
+        input("Enter...")
+        return
 
-    # Tentukan batas akhir satu hari setelah tanggal terakhir di data.
-    end_date = tanggal_terakhir_data + timedelta(days=1)
+    df = pd.read_csv(SALES_FILE)
+
+    # pastikan harga & total angka
+    df["harga"] = pd.to_numeric(df["harga"], errors="coerce")
+    df["total"] = pd.to_numeric(df["total"], errors="coerce")
+
+    # tanggal ke datetime
+    df["tanggal"] = pd.to_datetime(df["tanggal"])
+
+    # sorting berdasarkan waktu (baru → lama)
+    df = df.sort_values("tanggal", ascending=False)
+
+    # tanggal terakhir utk acuan filter
+    last_date = df["tanggal"].max().normalize()
+    end_date = last_date + timedelta(days=1)
 
     while True:
-        print("== Pilih waktu nya ==")
-        print("1. Data hari ini")
-        print("2. Data 1 Minggu ")
-        print("3. Data 1 Bulan")
-        print("4. Keluar ")
-        pillihan = input("Masukkan perintah berupa angka 1/2/3/4: ")
+        os.system("cls")
+        print("=== PILIH FILTER WAKTU ===")
+        print("1. Hari ini")
+        print("2. 1 Minggu")
+        print("3. 1 Bulan")
+        print("4. Kembali")
+        pilih = input("Masukkan pilihan: ")
 
-        if pillihan == "1":
-            #menentukan batas tanggal dari data yang ingin dikluarkan 
+        if pilih == "1":
             start_date = end_date - timedelta(days=1)
-            filtered = penjualan[
-                (penjualan['tanggal'] >= start_date) & 
-                (penjualan['tanggal'] < end_date) 
-            ]
-            print(tabulate.tabulate(filtered, headers='keys', tablefmt='fancy_grid'))
-            input("klik enter untuk lanjut.......")
-            laporan_admin()
-        elif pillihan == "2":
+        elif pilih == "2":
             start_date = end_date - timedelta(days=7)
-            filtered = penjualan[
-                (penjualan['tanggal'] >= start_date) & 
-                (penjualan['tanggal'] < end_date) 
-            ]
-            print(tabulate.tabulate(filtered, headers='keys', tablefmt='fancy_grid'))
-            input("klik enter untuk lanjut.......")
-            laporan_admin()
-        elif pillihan == "3":
+        elif pilih == "3":
             start_date = end_date - timedelta(days=30)
-            filtered = penjualan[
-                (penjualan['tanggal'] >= start_date) & 
-                (penjualan['tanggal'] < end_date) 
-            ]
-            print(tabulate.tabulate(filtered, headers='keys', tablefmt='fancy_grid'))
-            input("klik enter untuk lanjut.......")
-            laporan_admin()
-        elif pillihan =="4":
-            input("klik enter untuk lanjut.......")
-            menu_admin(["username"])
-        else :
-            print("input ayang anda masukkan salah")
+        elif pilih == "4":
+            return
+        else:
+            print("Pilihan tidak valid.")
+            input("Enter...")
+            continue
+
+        # FILTER
+        filtered = df[(df["tanggal"] >= start_date) & (df["tanggal"] < end_date)]
+
+        if filtered.empty:
+            print("Tidak ada transaksi di rentang ini.")
+            input("Enter...")
+            continue
+
+        # PROSES KE TABEL SATUAN
+        transaksi_map = {}
+
+        for _, row in filtered.iterrows():
+            tgl = row["tanggal"].strftime("%Y-%m-%d %H:%M:%S")
+
+            if tgl not in transaksi_map:
+                transaksi_map[tgl] = {
+                    "pembeli": row["pembeli"],
+                    "items": [],
+                    "total_all": 0
+                }
+
+            item_str = f"{row['produk']} ({int(row['jumlah'])}) - Rp{row['total']}"
+            transaksi_map[tgl]["items"].append(item_str)
+
+            try:
+                transaksi_map[tgl]["total_all"] += float(row["total"])
+            except:
+                pass
+
+        # Bikin tabel final
+        tabel = []
+
+        for tgl, dat in transaksi_map.items():
+            produk_cell = "\n".join(dat["items"])
+            tabel.append([
+                tgl,
+                dat["pembeli"],
+                produk_cell,
+                dat["total_all"]
+            ])
+
+        print("\n" + tabulate.tabulate(
+            tabel,
+            headers=["Tanggal", "Pembeli", "Produk", "Total Transaksi"],
+            tablefmt="fancy_grid"
+        ))
+
+        input("\nEnter untuk lanjut...")
 
 # =========================
 #  MENU UTAMA
