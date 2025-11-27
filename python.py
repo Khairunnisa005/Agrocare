@@ -933,14 +933,3 @@ def menu():
         else:
             print("\n Pilihan tidak valid! Silahkan masukkan angka 1-3.\n")
 menu()
-
-
-
-
-
-
-# error handling ketika username salah (done)
-# menu pembelian error (done)
-# 'laporan pembelian anda\n' (emang gitu gabisa pakek tabulet)
-# laporan penjualan rapiin tabelnya. laporan penjualan ?
-# error handling untuk salah pilih menu di kelola akun (done)
