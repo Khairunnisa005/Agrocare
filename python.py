@@ -74,10 +74,12 @@ def login():
     #cek username
     akun = data_akun[data_akun["username"] == username]
 
+    #jika usn tdk ditemukan
     if akun.empty:
         print("\nUsername tidak terdaftar. Silahkan daftarr/register telebih dahulu.")
         input("Klik Enter untuk melanjutkan...") 
-        return None #jika usn salah mka kembali ke menu
+        menu()
+        return  #jika usn salah mka kembali ke menu
 
     #kalo usn benar minta passwod
     password = input("Masukkan Password : ")
@@ -87,11 +89,12 @@ def login():
         (data_akun["username"] == username) & 
         (data_akun["password"] == password)
     ]
-    #cek pw
+    #jika pw salah
     if password_benar.empty: 
         print("\nPassword salah! Silahkan coba lagi.")
         input("Klik Enter untuk melanjutkan...")
-        return None #jika pw salah mka kembali ke menu
+        menu()
+        return #jika pw salah mka kembali ke menu
 
     # jika usn dan pw benar cek role maka login berhasil
     role = password_benar.iloc[0]["role"]
@@ -146,22 +149,43 @@ def ubah_username(username_lama):
 
     print("================UBAH USERNAME================")
     print(f"Username saat ini: {username_lama}\n")
-    username_baru = input("Masukkan username baru: ")
 
-    #cek apakah username baru sudah digunakan orang lain
-    if username_baru in data_akun["username"]. values:
-        print("username sudah sudah terdaftar!")
-        return username_lama
-        #jika usn sudah digunakan maka batal,tetap usn lama
+    username_lama = input("Masukkan username lama: ").strip()
 
-    #update username
+    #cek apakah uns lama benar ada di data
+    if username_lama not in data_akun["username"].values:
+        print(f"Username '{username_lama}' tidak ditemukan. tidak bisa dilanjutkan")
+        return
+    #menampilkan kembali usn yang sedang di proses
+    print(f"Username saat ini: {username_lama}\n")
+
+    #input usn baru
+    while True: #meminta usn baru dengan berbagai pengecekan
+        username_baru = input("Masukkan username baru: ").strip()
+
+        #tdk boleh kosong/spasi
+        if not username_baru:
+            print("Username tidak boleh kosong! Silahkan coba lagi")
+            continue
+
+        #tidak boleh sama dg usn lama
+        if username_baru == username_lama:
+            print("Username baru tidak boleh sama dengan username lama")
+            continue
+
+        #tdk boleh sama dg usn pengguna lain
+        if username_baru in data_akun["username"].values:
+            print("Username sudah digunakan oleh pengguna lain\n")
+            continue
+        break
+
+    #update csv
     data_akun.loc[data_akun["username"] == username_lama, "username"] = username_baru
     data_akun.to_csv("users.csv", index=False)
 
-    #tampilkan pesan sukses
-    print("Username berhail di ubah!")
+    #menampilkan pesan berhasil
+    print(f"Username berhasil diubah menjadi: {username_baru}")
     return username_baru
-    #agar menu utama langsung memakai usn baru
 
 def ubah_password(username):
     os.system('cls')
@@ -169,6 +193,8 @@ def ubah_password(username):
 
     print("================UBAH PASSWORD================")
     print(f"Username saat ini: {username}\n")
+
+    #meminta pw lama
     password_lama = input("Masukkan password lama: ")
 
     #cek apakah password lama benar, mencari baris di csv yg usn dan pw cocok, kalo tdk ada maka salah
@@ -183,9 +209,15 @@ def ubah_password(username):
         input("Tekan enter untuk kembali...")
         return username
     
-    password_baru = input("Masukkan password baru: " )
-    while not password_baru.strip():
-        password_baru = input("Masukkan password baru: ")
+    password_baru = input("Masukkan password baru: " ).strip()
+
+    #validasi, tdk boleh sama dengan password lama dan tdk boleh kosong    
+    while not password_baru or password_baru == password_lama:
+        if not password_baru:
+            print("Password baru tidak boleh kosong!")
+        else:
+            print("Password baru tidak boleh sama dengan password lama!")
+        password_baru = input("Masukkan password baru: ").strip()
 
     #update pw di csv
     data_akun.loc[data_akun["username"] == username, "password"] = password_baru
@@ -468,9 +500,9 @@ def beli_produk(username):
     
     keranjang = [] #list untuk menampung banyak barang
 
-    while True: #loop utama menambahkan item, akan terus berulang sampai pembeli
-        #menjawab tidak pada petanyaan "mau beli produk lain?"
+    while True: 
         os.system('cls')
+
         data = pd.read_csv(PRODUCT_FILE)
 
         print("==== BELI PRODUK ====")
@@ -481,7 +513,7 @@ def beli_produk(username):
         display_df.index = range(1, len(display_df) + 1)
         print(tabulate.tabulate(display_df, headers="keys", tablefmt="fancy_grid"))
 
-        # input nomor produk (1-based)
+        # input nomor produk mulai dari 1
         try:
             indeks_user = int(input("\nMasukkan nomor produk (mulai dari 1): "))
         except ValueError:
@@ -579,15 +611,13 @@ def beli_produk(username):
     from datetime import datetime
     tanggal = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
+    #membuka file sales.csv untuk menambah transaksi
     with open(SALES_FILE, "a", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
+        #menulis transaksi untuk setiap barang dikeranjang
         for item in keranjang:
             writer.writerow([tanggal, username, item["nama"], item["jumlah"], item["harga"], item["subtotal"]])
-            #
-            if jumlah <= 0:
-                print("Jumlah tidak boleh 0!")
-                input("Enter")
-                continue
+        
 
     print("================================")
     print("====== TRANSAKSI BERHASIL ======")
@@ -680,29 +710,33 @@ def menu_pembeli(username):
 
 
 
-#searching
+#searching untuk mencari produk berdasarkan kata kunci (keyword).
+#user bisa mengetik sebagian kata saja, dan sistem akan menampilkan produk yang mengandung kata itu.
 def cari_produk():
         os.system("cls")
 
         print("===== CARI PRODUK =====")
 
+        #df (dataframe) berisi seluruh daftar produk (product.csv)
         df = pd.read_csv(PRODUCT_FILE)
 
         keyword = input("Masukkan kata pencarian: ").lower()
 
         # Filter produk yang mengandung keyword (case-insensitive)
         hasil = df[df['nama'].str.lower().str.contains(keyword)]
-
+        
+        #jika pencarian kosong/tdk ditemukan
         if hasil.empty:
             print("\n Produk tidak ditemukan!")
-            input("Enter...")
-            return None  # tidak menemukan produk
+            input("Enter")
+            return
 
-        print("\n=== HASIL PENCARIAN ===")
-        print(tabulate.tabulate(hasil, headers="keys", tablefmt="grid"))
+        #tampilkan tabel
+        print("\n === HASIL PENCARIAN ===")
+        print(tabulate.tabulate(hasil, headers="keys", tablefmt="fancy_grid"))
         print()
 
-        return hasil  # dikembalikan ke menu pembelian
+        input("Tekan enter untuk kembali")
 
 # =========================
 #  LAPORAN PEMBELI
