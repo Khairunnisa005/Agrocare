@@ -5,8 +5,6 @@ tanggal,pembeli,produk,jumlah,harga,total
 2025-11-25 22:41:37,acaa,Pupuk MPK,10,8000.0,80000.0
 2025-11-25 22:41:54,acaa,Pupuk Perangsang Bunga,90,10000.0,900000.0
 2025-11-26 00:14:29,acaa,Racun serangga,8,20000.0,160000.0
-2025-11-26 00:15:24,acaa,Racun serangga,80,20000.0,1600000.0
-2025-11-26 00:15:24,acaa,Pupuk Em4,2,10000.0,20000.0
 2025-11-26 00:15:27,acaa,Pupuk MPK,2,8000.0,16000.0
 2025-11-26 17:35:16,acaa,Pupuk MPK,2,8000.0,16000.0
 2025-11-27 18:54:08,Nesya,Pupuk Pak Tani NPK,10,3000.0,30000.0
@@ -15,3 +13,6 @@ tanggal,pembeli,produk,jumlah,harga,total
 2025-11-27 18:54:59,Rizqi,Racun serangga,1,20000.0,20000.0
 2025-11-27 18:54:59,Rizqi,Pupuk Perangsang Bunga,87,10000.0,870000.0
 2025-12-02 20:00:38,acaa,Pupuk Pak Tani NPK,2,3000.0,6000.0
+2025-12-03 00:08:56,acaa,Pupuk Em4,5,10000.0,50000.0
+2025-12-03 01:18:42,acaa,Pupuk Perangsang Bunga,9,10000.0,90000.0
+2025-12-03 01:50:32,acaa,Obat tumbuhan,10,8700.0,87000.0

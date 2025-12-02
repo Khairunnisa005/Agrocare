@@ -447,6 +447,9 @@ def lihat_produk():
     input("\nKlik Enter untuk kembali...")
     menu_kelola_produk()
 
+# =========================
+#  MENU PEMBELIAN PRODUK
+# =========================
 def beli_produk(username):
     os.system('cls')
     
@@ -525,7 +528,7 @@ def beli_produk(username):
 
     os.system('cls')
     print("===============================")
-    print("\n======= ISI KERANJANG =======")
+    print("======== ISI KERANJANG ========")
     print("===============================")
     for item in keranjang:
         print(f" - {item['nama']} x {item['jumlah']} = Rp{item['subtotal']}")
